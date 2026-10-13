@@ -74,3 +74,4 @@ If `TAHRIO_API_URL` is empty or unreachable, pages build from the bundled catalo
 4. Submit `https://<domain>/sitemap.xml` in Google Search Console and Bing Webmaster Tools.
 
 Product photos are Unsplash/Pexels licensed; see `src/data/PHOTO_CREDITS.md`.
+# Tahrio-web-app
