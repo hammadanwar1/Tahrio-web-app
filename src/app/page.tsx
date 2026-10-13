@@ -1,69 +1,76 @@
-import Image from "next/image";
+import type { Metadata } from 'next';
 
-export default function Home() {
+import { JsonLd } from '@/components/json-ld';
+import { ProductGrid } from '@/components/product-card';
+import { CategoryTiles, FaqList, PromoBanner, SectionHeader, TrustBar } from '@/components/sections';
+import { storeFaqs } from '@/data/seo-content';
+import { getCatalog } from '@/lib/catalog';
+import { filterProducts } from '@/lib/catalog-core';
+import { faqLd } from '@/lib/jsonld';
+import { pageMetadata } from '@/lib/seo';
+import { site } from '@/lib/site';
+
+export const metadata: Metadata = {
+  ...pageMetadata({
+    title: 'Tahrio – Original Mobile Accessories in Pakistan',
+    description: site.description,
+    path: '/',
+  }),
+  // Home uses the full brand title without the " | Tahrio" template suffix.
+  title: { absolute: `Mobile Accessories in Pakistan: Earbuds, Cases & More | ${site.name}` },
+};
+
+export default async function HomePage() {
+  const catalog = await getCatalog();
+  const hot = filterProducts(catalog, { section: 'hot' });
+  const fresh = filterProducts(catalog, { section: 'new' });
+  const banner = catalog.banners.find((b) => b.placement === 'home');
+  const bannerCategory = catalog.categories.find((c) => c.id === banner?.categoryId);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="container-page space-y-12 pt-6">
+      <JsonLd data={faqLd(storeFaqs)} />
+      <header className="space-y-1">
+        <h1 className="text-[26px] font-bold leading-tight sm:text-[32px]">Original mobile accessories in Pakistan</h1>
+        <p className="text-muted">Earbuds, cases, fast chargers & power banks — free delivery and cash on delivery nationwide.</p>
+      </header>
+      {banner && <PromoBanner banner={banner} category={bannerCategory} />}
+
+      <section>
+        <SectionHeader title="Categories" href="/collections" linkLabel="See all" />
+        <CategoryTiles categories={catalog.categories} />
+      </section>
+
+      <section>
+        <SectionHeader title="Hot Deals" href="/collections" />
+        <ProductGrid products={hot.slice(0, 8)} eagerCount={2} />
+      </section>
+
+      <TrustBar />
+
+      <section>
+        <SectionHeader title="New Arrivals" href="/collections" />
+        <ProductGrid products={fresh.slice(0, 8)} />
+      </section>
+
+      <section className="grid gap-8 lg:grid-cols-[1fr_1.2fr]">
+        <div className="space-y-4 text-[15px] leading-relaxed text-muted">
+          <h2 className="text-2xl font-bold text-ink">Buy original mobile accessories online in Pakistan</h2>
+          <p>
+            Tahrio is an online store for everyday phone essentials: wireless earbuds and ANC earbuds, MagSafe
+            phone cases, 20W and 65W fast chargers, braided USB-C cables, slim power banks and smart watches.
+          </p>
+          <p>
+            Every order ships free across Pakistan — Karachi, Lahore, Islamabad, Rawalpindi, Faisalabad, Multan,
+            Peshawar and beyond — with cash on delivery, JazzCash, Easypaisa or card payment, and a{' '}
+            {site.policy.returnDays}-day easy return policy.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div>
+          <h2 className="mb-4 text-2xl font-bold">Frequently asked questions</h2>
+          <FaqList faqs={storeFaqs} />
         </div>
-      </main>
+      </section>
     </div>
   );
 }

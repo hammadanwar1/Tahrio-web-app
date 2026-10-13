@@ -1,26 +1,78 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Tahrio design tokens — Figma "01 · Design Tokens" (light + Card Dark set). */
+@theme {
+  --color-bg: #f3f5fc;
+  --color-surface: #ffffff;
+  --color-primary: #4363ff;
+  --color-primary-light: #a855f7;
+  --color-primary-soft: #eaeeff;
+  --color-ink: #0f1433;
+  --color-muted: #6b7399;
+  --color-line: #e2e6f4;
+  --color-success: #16a34a;
+  --color-accent: #d946ef;
+  --color-danger: #e5484d;
+  --color-star: #f5b301;
+
+  /* Card Dark (product cards) */
+  --color-card: #141b3f;
+  --color-card-soft: #1d2757;
+  --color-card-ink: #f4f6ff;
+  --color-card-muted: #8f98c8;
+  --color-card-primary: #4c7dff;
+  --color-card-inverse: #060a1f;
+  --color-card-success: #22c55e;
+
+  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-chip: 12px;
+  --radius-input: 16px;
+  --radius-image: 18px;
+  --radius-card: 24px;
+  --radius-button: 28px;
+  --radius-sheet: 32px;
+
+  --shadow-card: 0 8px 20px rgba(74, 43, 184, 0.08);
+  --shadow-nav: 0 12px 30px rgba(23, 20, 31, 0.22);
+  --shadow-toast: 0 8px 24px rgba(23, 20, 31, 0.12);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@utility bg-gradient-button {
+  background-image: linear-gradient(90deg, #22d3ee 0%, #6366f1 50%, #d946ef 100%);
+}
+@utility bg-gradient-hero {
+  background-image: linear-gradient(169.54deg, #1d4ed8 8.33%, #6d28d9 54.17%, #a21caf 91.67%);
+}
+@utility container-page {
+  width: 100%;
+  max-width: 1240px;
+  margin-inline: auto;
+  padding-inline: 1rem;
+  @media (width >= 640px) {
+    padding-inline: 1.5rem;
+  }
+}
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
