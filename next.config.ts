@@ -1,11 +1,24 @@
 import type { NextConfig } from 'next';
 
+function apiUploadsPattern() {
+  try {
+    const { protocol, hostname, port } = new URL(process.env.TAHRIO_API_URL ?? '');
+    return [{ protocol: protocol.replace(':', '') as 'http' | 'https', hostname, port, pathname: '/uploads/**' }];
+  } catch {
+    return [];
+  }
+}
+
 const nextConfig: NextConfig = {
   cacheComponents: true,
   // Off so product/collection params are awaited before streaming: unknown slugs return a real
   // HTTP 404 (with it on, notFound() inside Suspense returns 200 + noindex) — better for SEO.
   partialPrefetching: false,
   poweredByHeader: false,
+  experimental: {
+    // Admin product photos (up to 5 MB) are uploaded through a Server Action.
+    serverActions: { bodySizeLimit: '6mb' },
+  },
   turbopack: {
     rules: {
       '*.css': {
@@ -16,8 +29,14 @@ const nextConfig: NextConfig = {
   },
   images: {
     formats: ['image/avif', 'image/webp'],
+    // Lets `next dev` show photos uploaded to a local API (localhost:4000). Never on in production (SSRF).
+    dangerouslyAllowLocalIP: process.env.NODE_ENV === 'development',
     // Product photos served by the Tahrio API/CDN (add the production host here).
-    remotePatterns: process.env.TAHRIO_IMAGE_HOST ? [{ protocol: 'https', hostname: process.env.TAHRIO_IMAGE_HOST }] : [],
+    remotePatterns: [
+      ...(process.env.TAHRIO_IMAGE_HOST ? [{ protocol: 'https' as const, hostname: process.env.TAHRIO_IMAGE_HOST }] : []),
+      // Photos uploaded in /admin are served by the API itself at <api origin>/uploads/<file>.
+      ...apiUploadsPattern(),
+    ],
   },
   async headers() {
     return [

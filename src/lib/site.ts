@@ -24,16 +24,13 @@ export const site = {
     'smart watch price in Pakistan',
     'cash on delivery Pakistan',
   ],
-  // PLACEHOLDERS — replace phone, email, address and social URLs with the client's real details
-  // before launch: they are published in Organization/LocalBusiness structured data.
-  phone: '+92-300-1234567',
-  whatsapp: '923001234567',
-  email: 'support@tahrio.pk',
+  // Published in Organization/LocalBusiness structured data. Social URLs are still PLACEHOLDERS.
+  phone: '+92-332-6204600',
+  whatsapp: '923326204600',
+  email: 'sales@tahrio.pk',
   address: {
-    streetAddress: 'Block B',
-    addressLocality: 'Karachi',
-    addressRegion: 'Sindh',
-    postalCode: '75500',
+    addressLocality: 'Islamabad',
+    addressRegion: 'Islamabad Capital Territory',
     addressCountry: 'PK',
   },
   social: {

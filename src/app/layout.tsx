@@ -1,11 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Outfit } from 'next/font/google';
 
-import { JsonLd } from '@/components/json-ld';
-import { SiteFooter } from '@/components/site-footer';
-import { SiteHeader } from '@/components/site-header';
-import { StoreProvider } from '@/components/store-provider';
-import { organizationLd, websiteLd } from '@/lib/jsonld';
 import { site } from '@/lib/site';
 import './globals.css';
 
@@ -60,22 +55,8 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="en-PK" className={`${outfit.variable} h-full`}>
-      <body className="flex min-h-full flex-col">
-        <a
-          href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-surface focus:px-4 focus:py-2"
-        >
-          Skip to content
-        </a>
-        <JsonLd data={[organizationLd(), websiteLd()]} />
-        <StoreProvider>
-          <SiteHeader />
-          <main id="main" className="flex-1">
-            {children}
-          </main>
-          <SiteFooter />
-        </StoreProvider>
-      </body>
+      {/* Storefront chrome lives in (shop)/layout.tsx so /admin can use its own shell. */}
+      <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );
 }

@@ -27,7 +27,7 @@ export default function ContactPage() {
           Email: <a href={`mailto:${site.email}`}>{site.email}</a>
         </li>
         <li>
-          Address: {site.address.streetAddress}, {site.address.addressLocality}, Pakistan
+          Address: {site.address.addressLocality}, Pakistan
         </li>
       </ul>
       <p>Please include your order ID (for example TR-20481) so we can help faster.</p>
