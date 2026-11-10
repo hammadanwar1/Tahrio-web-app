@@ -7,6 +7,9 @@ import { rs } from '@/lib/format';
 
 export const metadata: Metadata = { title: 'Dashboard' };
 
+// Admin data is session-gated and must be live on every request; there is no useful static shell.
+export const instant = false;
+
 const RANGES = [
   { id: '7d', label: '7 days' },
   { id: '30d', label: '30 days' },

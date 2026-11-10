@@ -3,14 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node --watch-path=backend/src --watch-preserve-output server.js --dev",
     "build": "next build",
-    "start": "next start",
+    "start": "node server.js",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
+    "test:api": "node --test \"backend/test/*.test.js\"",
+    "db:reset": "node -e \"require('./backend/src/db').reset(); console.log('db reset from seed')\"",
     "seo:audit": "node scripts/seo-audit.mjs"
   },
   "dependencies": {
+    "@next/env": "16.4.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.6",
+    "express": "^4.22.3",
+    "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.56.0",
     "next": "16.4.0",
     "react": "19.3.0",

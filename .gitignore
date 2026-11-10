@@ -40,3 +40,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Backend runtime data (JSON database + uploaded photos)
+/backend/data/db.json
+/backend/data/db.json.tmp
+/backend/data/uploads/

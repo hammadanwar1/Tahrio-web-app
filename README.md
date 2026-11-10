@@ -1,20 +1,39 @@
 # Tahrio Web App
 
-SEO-first Next.js 16 storefront for **Tahrio**, a mobile accessories store in Pakistan. It shares the
-catalog, prices and orders with the Tahrio mobile app through the Tahrio REST API (`../tahrio/backend`).
+Everything for **Tahrio**, a mobile accessories store in Pakistan, in one repo and one deploy:
+
+- **Storefront**: SEO-first Next.js 16 site (`src/app/(shop)`).
+- **Admin panel** at `/admin` (`src/app/admin`): orders, products, categories, customers.
+- **REST API** at `/api` (`backend/`, Express + JSON-file database), also used by the mobile app.
+
+`server.js` runs all three in a single Node process on one port: `/api/*` and `/uploads/*` go to the
+API and everything else goes to Next.js.
 
 ## Run it
 
 ```bash
 npm install
-cp .env.example .env.local      # set TAHRIO_API_URL / NEXT_PUBLIC_SITE_URL
-npm run dev                     # http://localhost:3000
+cp .env.example .env.local      # set ADMIN_PASSWORD, ADMIN_SESSION_SECRET, ADMIN_KEY…
+npm run dev                     # http://localhost:3000 (store), /admin, /api
 npm run build && npm start      # production
+npm run test:api                # API tests
+npm run db:reset                # reset the local database from backend/data/seed.json
 npm run seo:audit -- http://localhost:3000   # crawl the sitemap and check on-page SEO
 ```
 
-If `TAHRIO_API_URL` is empty or unreachable, pages build from the bundled catalog snapshot
-(`src/data/seed.json`) and checkout is disabled, with a WhatsApp fallback.
+Data lives in `backend/data/db.json` and `backend/data/uploads/`, or in `DATA_DIR` if set. Both are
+git-ignored and created from `backend/data/seed.json` on first run.
+
+## Deploy
+
+It runs as one service on any host that can run Node.js with a persistent disk: Render, Railway,
+Fly.io or a VPS. It can't run on Vercel, because the database and photos are files on disk.
+
+- **Render:** connect the repo and it picks up `render.yaml` (Docker and a 1 GB disk at `/var/data`).
+  Set `NEXT_PUBLIC_SITE_URL` and `ADMIN_PASSWORD`; the other secrets are generated.
+- **Any Docker host:** `docker build --build-arg NEXT_PUBLIC_SITE_URL=https://tahrio.pk -t tahrio .`,
+  then run it with a volume at `/var/data` and the env vars from `.env.example`.
+- **The mobile app:** point its API base URL at `https://<your-domain>/api`.
 
 ## Environment
 

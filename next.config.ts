@@ -1,12 +1,16 @@
 import type { NextConfig } from 'next';
 
+/** Photos uploaded in /admin are served at <origin>/uploads/<file> by the API in server.js. */
 function apiUploadsPattern() {
-  try {
-    const { protocol, hostname, port } = new URL(process.env.TAHRIO_API_URL ?? '');
-    return [{ protocol: protocol.replace(':', '') as 'http' | 'https', hostname, port, pathname: '/uploads/**' }];
-  } catch {
-    return [];
-  }
+  const origins = [process.env.PUBLIC_URL, process.env.NEXT_PUBLIC_SITE_URL, process.env.TAHRIO_API_URL];
+  return origins.flatMap((origin) => {
+    try {
+      const { protocol, hostname, port } = new URL(origin ?? '');
+      return [{ protocol: protocol.replace(':', '') as 'http' | 'https', hostname, port, pathname: '/uploads/**' }];
+    } catch {
+      return [];
+    }
+  });
 }
 
 const nextConfig: NextConfig = {
@@ -34,7 +38,6 @@ const nextConfig: NextConfig = {
     // Product photos served by the Tahrio API/CDN (add the production host here).
     remotePatterns: [
       ...(process.env.TAHRIO_IMAGE_HOST ? [{ protocol: 'https' as const, hostname: process.env.TAHRIO_IMAGE_HOST }] : []),
-      // Photos uploaded in /admin are served by the API itself at <api origin>/uploads/<file>.
       ...apiUploadsPattern(),
     ],
   },
