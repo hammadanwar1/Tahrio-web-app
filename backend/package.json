@@ -1,0 +1,21 @@
+{
+  "name": "tahrio-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tahrio REST API on its own (e.g. on Render). The repo root's server.js can also run it alongside Next.js.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test \"test/*.test.js\""
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.6",
+    "express": "^4.22.3",
+    "jsonwebtoken": "^9.0.3"
+  }
+}

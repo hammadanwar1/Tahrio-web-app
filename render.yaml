@@ -1,24 +1,22 @@
-# One-click deploy on Render (https://render.com/deploy): storefront, admin panel and API in one
-# service. The disk keeps the JSON database and uploaded photos across deploys.
+# Render Blueprint for the API only (the website + admin panel run on Vercel).
+# Render → New → Blueprint → pick this repo. The disk keeps the JSON database and uploaded photos
+# across deploys and restarts (disks need a paid plan; on the free plan data resets on every deploy).
 services:
   - type: web
-    name: tahrio
-    runtime: docker
+    name: tahrio-api
+    runtime: node
+    rootDir: backend
     plan: starter
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
     healthCheckPath: /api/health
     envVars:
-      - key: NEXT_PUBLIC_SITE_URL
-        sync: false # your live domain, e.g. https://tahrio.pk
+      - key: NODE_VERSION
+        value: "20"
       - key: JWT_SECRET
         generateValue: true
       - key: ADMIN_KEY
-        generateValue: true
-      - key: REVALIDATE_SECRET
-        generateValue: true
-      - key: ADMIN_SESSION_SECRET
-        generateValue: true
-      - key: ADMIN_PASSWORD
-        sync: false # password for /admin/login
+        generateValue: true # copy this into Vercel as TAHRIO_ADMIN_KEY
       - key: DATA_DIR
         value: /var/data
     disk:
