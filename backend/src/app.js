@@ -11,7 +11,8 @@ const A = require('./admin-logic');
 const adminRoutes = require('./admin-routes');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'tahrio-dev-secret-change-me';
-const ADMIN_KEY = process.env.ADMIN_KEY || 'tahrio-admin';
+// Trimmed: a pasted key often carries a trailing space/newline, which HTTP strips from the header.
+const ADMIN_KEY = (process.env.ADMIN_KEY || 'tahrio-admin').trim();
 /** Public origin of this API (e.g. https://api.tahrio.pk), used for uploaded image URLs. */
 const PUBLIC_URL = (process.env.PUBLIC_URL || process.env.RENDER_EXTERNAL_URL || '').replace(/\/$/, '');
 const UPLOAD_DIR = path.join(store.DATA_DIR, 'uploads');
