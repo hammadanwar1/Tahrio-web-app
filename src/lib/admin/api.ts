@@ -11,8 +11,12 @@ export class AdminApiError extends Error {}
 
 export async function adminFetch<T>(path: string, init: { method?: string; body?: unknown; raw?: Blob } = {}): Promise<T> {
   await requireAdmin();
-  const key = process.env.TAHRIO_ADMIN_KEY;
-  if (!API || !key) throw new AdminApiError('Set TAHRIO_API_URL and TAHRIO_ADMIN_KEY to use the admin panel.');
+  // ADMIN_KEY too: it's the API's name for the same key, and easy to set on the website by mistake.
+  const key = process.env.TAHRIO_ADMIN_KEY || process.env.ADMIN_KEY;
+  if (!API || !key) {
+    const missing = [!API && 'TAHRIO_API_URL', !key && 'TAHRIO_ADMIN_KEY'].filter(Boolean).join(' and ');
+    throw new AdminApiError(`Missing environment variable: ${missing}. Add it to the website's environment, then redeploy.`);
+  }
 
   let res: Response;
   try {
