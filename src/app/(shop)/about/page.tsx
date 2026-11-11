@@ -29,7 +29,7 @@ export default function AboutPage() {
       <ul>
         <li>Every product is quality-checked before dispatch.</li>
         <li>
-          Free standard delivery across Pakistan in {site.policy.deliveryDays.min}–{site.policy.deliveryDays.max} days.
+          Standard delivery across Pakistan in {site.policy.deliveryDays.min}–{site.policy.deliveryDays.max} days.
         </li>
         <li>Cash on delivery, JazzCash, Easypaisa and card payments.</li>
         <li>{site.policy.returnDays}-day free returns and exchanges.</li>

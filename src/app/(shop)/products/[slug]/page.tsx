@@ -133,7 +133,7 @@ export default async function ProductPage({ params }: PageProps<'/products/[slug
           <ul className="grid gap-3 rounded-card bg-bg p-4 text-sm sm:grid-cols-2">
             <li className="flex items-center gap-3">
               <Truck aria-hidden className="size-5 text-primary" />
-              {p.freeDelivery ? 'Free delivery' : 'Delivery'} · {site.policy.deliveryDays.min}–
+              Delivery {rs(site.policy.standardDeliveryFee)} · {site.policy.deliveryDays.min}–
               {site.policy.deliveryDays.max} days
             </li>
             <li className="flex items-center gap-3">

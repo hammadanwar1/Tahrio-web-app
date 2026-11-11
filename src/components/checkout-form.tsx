@@ -85,7 +85,7 @@ export function CheckoutForm({ live }: { live: Record<string, LiveProduct> }) {
       ),
       '',
       `Subtotal: ${rs(subtotal)}`,
-      `Delivery (${method.name}, ${method.desc}): ${fee ? rs(fee) : 'Free'}`,
+      `Delivery (${method.name}, ${method.desc}): ${rs(fee)}`,
       ...(discount > 0 ? [`Promo (${promoCode}): -${rs(discount)}`] : []),
       `*Total: ${rs(total)}*`,
       'Payment: Cash on Delivery',
@@ -144,7 +144,7 @@ export function CheckoutForm({ live }: { live: Record<string, LiveProduct> }) {
         </div>
 
         <RadioGroup legend="Delivery method" value={deliveryId} onChange={(v) => setDeliveryId(v as typeof deliveryId)}
-          options={delivery.map((d) => ({ id: d.id, title: d.name, desc: d.desc, aside: d.fee ? rs(d.fee) : 'Free' }))} />
+          options={delivery.map((d) => ({ id: d.id, title: d.name, desc: d.desc, aside: rs(d.fee) }))} />
         <RadioGroup legend="Payment method" value={paymentId} onChange={(v) => setPaymentId(v as typeof paymentId)}
           options={payments.map((p) => ({ id: p.id, title: p.name, desc: p.desc }))} />
       </div>
@@ -152,7 +152,7 @@ export function CheckoutForm({ live }: { live: Record<string, LiveProduct> }) {
       <aside className="h-fit space-y-4">
         <dl className="space-y-3 rounded-card bg-surface p-5 text-sm shadow-card">
           <Row label={`Items (${count})`} value={rs(subtotal)} />
-          <Row label="Delivery" value={fee ? rs(fee) : <span className="text-success">Free</span>} />
+          <Row label="Delivery" value={rs(fee)} />
           {discount > 0 && <Row label={`Promo (${promoCode})`} value={<span className="text-success">- {rs(discount)}</span>} />}
           <div className="border-t border-line pt-3">
             <Row label={<span className="text-base font-semibold text-ink">Total</span>} value={<span className="text-lg font-bold">{rs(total)}</span>} />
@@ -189,7 +189,7 @@ function RadioGroup({ legend, value, onChange, options }: {
             <span className="block font-semibold">{o.title}</span>
             <span className="block text-xs text-muted">{o.desc}</span>
           </span>
-          {o.aside && <span className={`text-sm font-semibold ${o.aside === 'Free' ? 'text-success' : ''}`}>{o.aside}</span>}
+          {o.aside && <span className="text-sm font-semibold">{o.aside}</span>}
         </label>
       ))}
     </fieldset>

@@ -77,7 +77,6 @@ export function ProductForm({ product, categories, imageSrc }: { product?: Admin
           </div>
           <div className="flex flex-wrap gap-x-6 gap-y-3">
             <Toggle name="inStock" label="In stock" defaultChecked={product?.inStock ?? true} />
-            <Toggle name="freeDelivery" label="Free delivery" defaultChecked={product?.freeDelivery ?? false} />
             <Toggle name="hot" label="Hot deal" defaultChecked={product?.hot ?? false} />
             <Toggle name="isNew" label="New arrival" defaultChecked={product?.isNew ?? true} />
           </div>

@@ -32,7 +32,7 @@ export default async function HomePage() {
       <JsonLd data={faqLd(storeFaqs)} />
       <header className="space-y-1">
         <h1 className="text-[26px] font-bold leading-tight sm:text-[32px]">Original mobile accessories in Pakistan</h1>
-        <p className="text-muted">Earbuds, cases, fast chargers & power banks — free delivery and cash on delivery nationwide.</p>
+        <p className="text-muted">Earbuds, cases, fast chargers & power banks — cash on delivery nationwide.</p>
       </header>
       {banner && <PromoBanner banner={banner} category={bannerCategory} />}
 
@@ -61,8 +61,8 @@ export default async function HomePage() {
             phone cases, 20W and 65W fast chargers, braided USB-C cables, slim power banks and smart watches.
           </p>
           <p>
-            Every order ships free across Pakistan — Karachi, Lahore, Islamabad, Rawalpindi, Faisalabad, Multan,
-            Peshawar and beyond — with cash on delivery, JazzCash, Easypaisa or card payment, and a{' '}
+            We deliver across Pakistan — Karachi, Lahore, Islamabad, Rawalpindi, Faisalabad, Multan,
+            Peshawar and beyond — with cash on delivery and a{' '}
             {site.policy.returnDays}-day easy return policy.
           </p>
         </div>

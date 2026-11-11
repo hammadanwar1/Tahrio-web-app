@@ -13,7 +13,7 @@ export async function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-line bg-bg/90 backdrop-blur">
       <p className="bg-ink py-2 text-center text-xs text-white/90">
         <Truck aria-hidden className="mr-1.5 inline size-3.5 align-[-2px]" />
-        Free delivery across Pakistan · Cash on delivery · {site.policy.returnDays}-day easy returns
+        Delivery across Pakistan · Cash on delivery · {site.policy.returnDays}-day easy returns
       </p>
       <div className="container-page flex items-center gap-3 py-3 sm:gap-6">
         <Link href="/" aria-label={`${site.name} home`} className="shrink-0">

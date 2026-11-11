@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star, Truck } from 'lucide-react';
+import { Star } from 'lucide-react';
 
 import { productImage, productPath } from '@/lib/catalog-core';
 import { compactCount, rs } from '@/lib/format';
@@ -51,11 +51,6 @@ export function ProductCard({ product: p, eager = false }: { product: Product; e
           <span className="text-card-muted">· {compactCount(p.sold)} sold</span>
           <span className="sr-only">, rated {p.rating} out of 5</span>
         </p>
-        {p.freeDelivery && (
-          <p className="flex w-fit items-center gap-1 rounded-[10px] bg-card-success/15 px-2 py-[3px] text-[10px] font-medium text-card-success">
-            <Truck aria-hidden className="size-3" /> Free delivery
-          </p>
-        )}
         <div className="mt-auto flex items-center justify-between pt-1">
           <p className="flex flex-col leading-tight">
             <span className="text-base font-semibold text-card-primary">{rs(p.price)}</span>

@@ -78,7 +78,7 @@ export function CategoryTiles({ categories }: { categories: Category[] }) {
 export function TrustBar() {
   const items = [
     { icon: Banknote, title: 'Cash on delivery', text: 'Pay when it arrives, anywhere in Pakistan' },
-    { icon: Truck, title: 'Free delivery', text: `${site.policy.deliveryDays.min}–${site.policy.deliveryDays.max} days nationwide` },
+    { icon: Truck, title: 'Nationwide delivery', text: `${site.policy.deliveryDays.min}–${site.policy.deliveryDays.max} days nationwide` },
     { icon: RotateCcw, title: `${site.policy.returnDays}-day returns`, text: 'Free, no-hassle exchanges' },
     { icon: BadgeCheck, title: '100% original', text: 'Quality-checked before dispatch' },
   ];

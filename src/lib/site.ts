@@ -13,7 +13,7 @@ export const site = {
   country: 'PK',
   currency: 'PKR',
   description:
-    'Shop original mobile accessories in Pakistan — earbuds, phone cases, fast chargers, power banks, cables and smart watches. Cash on delivery nationwide, free delivery and 7-day easy returns.',
+    'Shop original mobile accessories in Pakistan — earbuds, phone cases, fast chargers, power banks, cables and smart watches. Cash on delivery nationwide, fast delivery and 7-day easy returns.',
   keywords: [
     'mobile accessories in Pakistan',
     'phone accessories online Pakistan',
@@ -40,9 +40,9 @@ export const site = {
     youtube: 'https://www.youtube.com/@tahrio',
   },
   /** Store policies — used in copy, FAQ and Product/MerchantReturnPolicy structured data. */
-  // Mirrors backend deliveryMethods: Standard free (2–3 days), Express Rs 250 (next day).
+  // Mirrors backend deliveryMethods: Standard Rs 150 (2–3 days), Express Rs 250 (next day).
   policy: {
-    standardDeliveryFee: 0,
+    standardDeliveryFee: 150,
     expressDeliveryFee: 250,
     deliveryDays: { min: 2, max: 3 },
     returnDays: 7,

@@ -8,6 +8,7 @@ import { Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
 import { validatePromoAction } from '@/lib/actions';
 import { rs } from '@/lib/format';
 import type { LiveProduct } from '@/lib/live-products';
+import { site } from '@/lib/site';
 import { store, type CartLine } from '@/lib/store';
 import { ProductGlyph } from './product-glyph';
 import { useStore } from './store-provider';
@@ -64,7 +65,7 @@ export function CartView({ live }: { live: Record<string, LiveProduct> }) {
   }
 
   const appliedDiscount = promoCode ? (discount ?? 0) : 0;
-  const total = Math.max(0, subtotal - appliedDiscount);
+  const total = Math.max(0, subtotal + site.policy.standardDeliveryFee - appliedDiscount);
 
   async function applyPromo(code: string) {
     setPromoError(null);
@@ -177,7 +178,7 @@ export function CartView({ live }: { live: Record<string, LiveProduct> }) {
 
         <dl className="space-y-3 rounded-card bg-surface p-5 text-sm shadow-card">
           <Row label="Subtotal" value={rs(subtotal)} />
-          <Row label="Delivery" value={<span className="text-success">Free</span>} />
+          <Row label="Delivery (standard)" value={rs(site.policy.standardDeliveryFee)} />
           {appliedDiscount > 0 && <Row label={`Promo (${promoCode})`} value={<span className="text-success">- {rs(appliedDiscount)}</span>} />}
           <div className="border-t border-line pt-3">
             <Row label={<span className="text-base font-semibold text-ink">Total</span>} value={<span className="text-lg font-bold">{rs(total)}</span>} />

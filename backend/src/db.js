@@ -19,11 +19,23 @@ let db;
 function load() {
   if (fs.existsSync(DB_FILE)) {
     db = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+    applyStorePolicy(db);
+    save();
   } else {
     db = freshFromSeed();
     save();
   }
   return db;
+}
+
+/**
+ * Store-wide settings that live in seed.json, re-applied to an existing database on every start
+ * so a deploy changes them everywhere: delivery fees, and no free delivery on any product.
+ */
+function applyStorePolicy(data) {
+  const seed = JSON.parse(fs.readFileSync(SEED_FILE, 'utf8'));
+  data.deliveryMethods = seed.deliveryMethods;
+  for (const p of data.products || []) p.freeDelivery = false;
 }
 
 function save() {

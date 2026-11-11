@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { ImageResponse } from 'next/og';
+import sharp from 'sharp';
 
 import { getCatalog } from '@/lib/catalog';
 import { findProductBySlug, productImage, productSlug, withDiscount } from '@/lib/catalog-core';
@@ -8,7 +9,9 @@ import { rs } from '@/lib/format';
 
 export const alt = 'Tahrio product';
 export const size = { width: 1200, height: 630 };
-export const contentType = 'image/png';
+// JPEG, not PNG: with the product photo a PNG card is ~300 KB, and WhatsApp drops preview images
+// above that. As JPEG it is a fraction of the size.
+export const contentType = 'image/jpeg';
 
 const fonts = Promise.all([
   readFile(join(process.cwd(), 'src/assets/fonts/Outfit-700.ttf')),
@@ -32,7 +35,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
     ? `data:image/jpeg;base64,${(await readFile(join(process.cwd(), 'public', img))).toString('base64')}`
     : img;
 
-  return new ImageResponse(
+  const png = new ImageResponse(
     (
       <div
         style={{
@@ -81,7 +84,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
               ) : null}
             </div>
           )}
-          <div style={{ fontSize: 26, fontWeight: 500, opacity: 0.85 }}>Cash on delivery · Free delivery in Pakistan</div>
+          <div style={{ fontSize: 26, fontWeight: 500, opacity: 0.85 }}>Cash on delivery across Pakistan</div>
         </div>
       </div>
     ),
@@ -93,4 +96,6 @@ export default async function Image({ params }: { params: Promise<{ slug: string
       ],
     },
   );
+  const jpeg = await sharp(Buffer.from(await png.arrayBuffer())).jpeg({ quality: 82, mozjpeg: true }).toBuffer();
+  return new Response(new Uint8Array(jpeg), { headers: { 'content-type': contentType } });
 }

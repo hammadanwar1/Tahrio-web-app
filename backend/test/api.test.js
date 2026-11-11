@@ -70,7 +70,8 @@ test('auth + cart + checkout + tracking', async () => {
   const cart = await call('GET', '/cart?promo=TAHRIO500');
   assert.equal(cart.body.subtotal, 10197);
   assert.equal(cart.body.discount, 500);
-  assert.equal(cart.body.total, 9697);
+  assert.equal(cart.body.deliveryFee, 150); // standard delivery
+  assert.equal(cart.body.total, 9847);
 
   await call('PUT', '/wishlist/p-buds-lite');
   const wl = await call('GET', '/wishlist');
@@ -82,7 +83,7 @@ test('auth + cart + checkout + tracking', async () => {
   });
   assert.equal(order.status, 201);
   assert.equal(order.body.number, 'TR-20481');
-  assert.equal(order.body.total, 9697);
+  assert.equal(order.body.total, 9847);
   assert.equal(order.body.status, 'packed');
 
   const empty = await call('GET', '/cart');

@@ -72,7 +72,6 @@ export async function saveProductAction(productId: string | null, _prev: FormSta
       inStock: Boolean(f.get('inStock')),
       hot: Boolean(f.get('hot')),
       isNew: Boolean(f.get('isNew')),
-      freeDelivery: Boolean(f.get('freeDelivery')),
     };
     saved = productId
       ? await adminFetch<AdminProduct>(`/products/${encodeURIComponent(productId)}`, { method: 'PATCH', body })

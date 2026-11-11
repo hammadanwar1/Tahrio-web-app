@@ -27,7 +27,7 @@ export const collectionSeo: Record<string, CollectionSeo> = {
   earbuds: {
     title: 'Wireless Earbuds Price in Pakistan – ANC & Gaming',
     description:
-      'Shop wireless earbuds in Pakistan: ANC earbuds, gaming buds with low latency, neckbands and wired earphones. Free delivery, cash on delivery nationwide.',
+      'Shop wireless earbuds in Pakistan: ANC earbuds, gaming buds with low latency, neckbands and wired earphones. Cash on delivery nationwide.',
     h1: 'Wireless Earbuds & Earphones',
     intro:
       'From active noise cancelling earbuds for the commute to low-latency gaming buds and long-battery neckbands, find the right sound for your budget. Every pair is tested for battery life and call quality before dispatch.',
@@ -63,7 +63,7 @@ export const collectionSeo: Record<string, CollectionSeo> = {
   'power-banks': {
     title: 'Power Bank Price in Pakistan – 10000 & 20000 mAh',
     description:
-      'Buy power banks in Pakistan: slim 10000mAh and 20000mAh PD power banks with 20W+ fast charging. Free delivery and cash on delivery across Pakistan.',
+      'Buy power banks in Pakistan: slim 10000mAh and 20000mAh PD power banks with 20W+ fast charging. Cash on delivery across Pakistan.',
     h1: 'Power Banks',
     intro:
       'Stay charged through load-shedding and long travel days. Choose a slim 10000mAh power bank for your pocket or a 20000mAh PD power bank that charges three devices at once.',
@@ -104,7 +104,7 @@ export const collectionSeo: Record<string, CollectionSeo> = {
   speakers: {
     title: 'Bluetooth Speaker Price in Pakistan – Waterproof',
     description:
-      'Buy portable Bluetooth speakers in Pakistan: IPX7 waterproof, 12-hour battery and punchy bass. Order online with free delivery and COD.',
+      'Buy portable Bluetooth speakers in Pakistan: IPX7 waterproof, 12-hour battery and punchy bass. Order online with cash on delivery.',
     h1: 'Bluetooth Speakers',
     intro: 'Pocket-size speakers with big sound, IPX7 waterproofing for the beach or poolside, and up to 12 hours of playtime.',
     faqs: [],
@@ -122,7 +122,7 @@ export const collectionSeo: Record<string, CollectionSeo> = {
 /** Store-wide FAQs (home + /faq page; FAQPage structured data). */
 export const storeFaqs = [
   { q: 'Do you offer cash on delivery in Pakistan?', a: 'Yes. Cash on Delivery is available in every city in Pakistan. You can also pay with JazzCash, Easypaisa or a debit/credit card.' },
-  { q: 'How long does delivery take?', a: 'Standard delivery is free and takes 2–3 business days in major cities. Express next-day delivery is available for Rs 250.' },
+  { q: 'How long does delivery take?', a: 'Standard delivery costs Rs 150 and takes 2–3 business days in major cities. Express next-day delivery is available for Rs 250.' },
   { q: 'Are your products original?', a: 'Every Tahrio product is quality-checked before dispatch and covered by our 7-day easy return policy.' },
   { q: 'What is your return policy?', a: 'If something is wrong with your order, you can return or exchange it within 7 days of delivery. Returns are free.' },
   { q: 'How can I track my order?', a: 'Use the Track Order page with your order ID (for example TR-20481) or open My Orders in the Tahrio app.' },

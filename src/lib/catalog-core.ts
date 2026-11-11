@@ -47,7 +47,6 @@ export function filterProducts(catalog: Catalog, f: ProductFilter = {}): Product
     if (f.maxPrice != null && p.price > f.maxPrice) return false;
     if (f.minRating != null && p.rating < f.minRating) return false;
     if (f.onSale && !discountPercent(p.price, p.oldPrice)) return false;
-    if (f.freeDelivery && !p.freeDelivery) return false;
     if (f.inStock && !p.inStock) return false;
     if (f.q && !matchesQuery(p, catById.get(p.categoryId), f.q)) return false;
     return true;

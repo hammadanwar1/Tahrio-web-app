@@ -83,7 +83,7 @@ export default async function BlogPost({ params }: PageProps<'/blog/[slug]'>) {
             <Link href={categoryPath(category)} className="font-semibold text-primary hover:underline">
               {category.name.toLowerCase()} in Pakistan
             </Link>{' '}
-            with cash on delivery and free shipping.
+            with cash on delivery across Pakistan.
           </p>
         )}
       </article>

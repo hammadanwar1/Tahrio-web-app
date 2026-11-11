@@ -53,7 +53,6 @@ async function Results({ searchParams }: { searchParams: Promise<SP> }) {
     maxPrice: num(sp.max),
     minRating: num(sp.rating),
     onSale: one(sp.sale) === '1',
-    freeDelivery: one(sp.free) === '1',
     inStock: one(sp.stock) === '1',
     sort: sorts.some((s) => s.key === sortParam) ? sortParam : 'popular',
   };
@@ -104,7 +103,6 @@ async function Results({ searchParams }: { searchParams: Promise<SP> }) {
           <legend className="mb-1.5 font-medium">Offers</legend>
           {[
             ['sale', 'On sale only', filter.onSale],
-            ['free', 'Free delivery', filter.freeDelivery],
             ['stock', 'In stock', filter.inStock],
           ].map(([name, label, on]) => (
             <label key={name as string} className="flex items-center gap-2">

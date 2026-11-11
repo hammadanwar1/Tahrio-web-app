@@ -8,18 +8,18 @@ import { site } from '@/lib/site';
 
 export const metadata: Metadata = pageMetadata({
   title: 'Shipping & Delivery Policy',
-  description: `Free standard delivery across Pakistan in ${site.policy.deliveryDays.min}–${site.policy.deliveryDays.max} business days, express next-day delivery and cash on delivery.`,
+  description: `Standard delivery across Pakistan in ${site.policy.deliveryDays.min}–${site.policy.deliveryDays.max} business days, express next-day delivery and cash on delivery.`,
   path: '/shipping-policy',
 });
 
 export default function ShippingPolicy() {
-  const { deliveryDays, expressDeliveryFee } = site.policy;
+  const { deliveryDays, standardDeliveryFee, expressDeliveryFee } = site.policy;
   return (
     <ContentPage title="Shipping & delivery" path="/shipping-policy">
       <h2>Delivery options</h2>
       <ul>
         <li>
-          Standard: free, {deliveryDays.min}–{deliveryDays.max} business days in major cities.
+          Standard: {rs(standardDeliveryFee)}, {deliveryDays.min}–{deliveryDays.max} business days in major cities.
         </li>
         <li>Express: {rs(expressDeliveryFee)}, next-day delivery where available.</li>
       </ul>

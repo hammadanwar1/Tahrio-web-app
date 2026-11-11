@@ -76,7 +76,6 @@ export interface ProductFilter {
   maxPrice?: number;
   minRating?: number;
   onSale?: boolean;
-  freeDelivery?: boolean;
   inStock?: boolean;
   sort?: SortKey;
 }
