@@ -20,6 +20,13 @@ export const metadata: Metadata = {
   publisher: site.name,
   category: 'shopping',
   formatDetection: { telephone: false, address: false, email: false },
+  // "Add to Home Screen" on iPhone: app name and status bar.
+  appleWebApp: { title: site.name, capable: true, statusBarStyle: 'default' },
+  // Store location for local search (Bing reads these; Google uses the JSON-LD address).
+  other: {
+    'geo.region': `${site.country}-IS`,
+    'geo.placename': site.address.addressLocality,
+  },
   openGraph: {
     type: 'website',
     siteName: site.name,

@@ -18,7 +18,13 @@ interface PageSeo {
    * own opengraph-image file (e.g. products), so the file convention supplies it.
    */
   image?: { url: string; width?: number; height?: number; alt?: string } | false;
-  type?: 'website' | 'article';
+  /**
+   * og:type. 'product' isn't in Next's typed Open Graph types, so for products og:type is left out
+   * here and <ProductMeta> (components/product-meta.tsx) renders it with the product:* price tags.
+   */
+  type?: 'website' | 'article' | 'product';
+  /** Page-specific keywords; replaces the site-wide list from the root layout. */
+  keywords?: string[];
   /** Utility pages (search, cart, checkout): keep out of the index but let links be followed. */
   noindex?: boolean;
 }
@@ -29,15 +35,16 @@ const defaultImage = { url: '/opengraph-image', width: 1200, height: 630, alt: `
  * Full metadata for a page. Nested metadata objects are shallow-merged in Next.js (a child
  * `openGraph` replaces the parent's wholesale, including images), so every page sets the complete set here.
  */
-export function pageMetadata({ title, description, path, image, type = 'website', noindex }: PageSeo): Metadata {
+export function pageMetadata({ title, description, path, image, type = 'website', keywords, noindex }: PageSeo): Metadata {
   const desc = clampText(description);
   const img = image === false ? undefined : (image ?? defaultImage);
   return {
     title: title.length + SUFFIX.length > MAX_TITLE ? { absolute: title } : title,
     description: desc,
+    ...(keywords ? { keywords } : {}),
     alternates: { canonical: path },
     openGraph: {
-      type,
+      ...(type === 'product' ? {} : { type }),
       siteName: site.name,
       locale: site.locale,
       url: path,

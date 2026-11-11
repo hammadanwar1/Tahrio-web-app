@@ -9,6 +9,7 @@ import { JsonLd } from '@/components/json-ld';
 import { AddToCartPanel, WishlistButton } from '@/components/product-actions';
 import { ProductGrid } from '@/components/product-card';
 import { ProductGlyph } from '@/components/product-glyph';
+import { ProductMeta } from '@/components/product-meta';
 import { getCatalog } from '@/lib/catalog';
 import {
   categoryPath,
@@ -35,6 +36,7 @@ export async function generateMetadata({ params }: PageProps<'/products/[slug]'>
   const product = findProductBySlug(catalog, slug);
   if (!product) notFound();
   const p = withDiscount(product);
+  const category = catalog.categories.find((c) => c.id === p.categoryId);
   return pageMetadata({
     title: productTitle(p),
     description: `Buy ${p.fullName} online in Pakistan for ${rs(p.price)}${
@@ -42,6 +44,15 @@ export async function generateMetadata({ params }: PageProps<'/products/[slug]'>
     }. ${p.description} Rated ${p.rating}/5. Cash on delivery, ${site.policy.returnDays}-day returns.`,
     path: productPath(p),
     image: false, // products/[slug]/opengraph-image.tsx
+    type: 'product',
+    keywords: [
+      `${p.fullName} price in Pakistan`,
+      `${p.name} price in Pakistan`,
+      `buy ${p.name} online in Pakistan`,
+      ...(p.label ? [`${p.label} price in Pakistan`] : []),
+      ...(category ? [`${category.name.toLowerCase()} in Pakistan`] : []),
+      `${site.name} ${p.name}`,
+    ],
   });
 }
 
@@ -66,6 +77,7 @@ export default async function ProductPage({ params }: PageProps<'/products/[slug
         ]}
       />
       <JsonLd data={productLd(p, category, reviews, catalog.priceValidUntil)} />
+      <ProductMeta product={p} />
 
       <div className="container-page grid gap-8 pt-4 lg:grid-cols-2 lg:gap-12">
         {/* Gallery */}

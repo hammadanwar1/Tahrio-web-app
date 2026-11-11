@@ -31,6 +31,13 @@ export async function generateMetadata({ params }: PageProps<'/collections/[slug
     title: seo?.title ?? `${category.name} Price in Pakistan`,
     description: seo?.description ?? `Shop ${category.name.toLowerCase()} online in Pakistan.${from} Cash on delivery.`,
     path: categoryPath(category),
+    keywords: [
+      `${category.name.toLowerCase()} price in Pakistan`,
+      `${category.name.toLowerCase()} in Pakistan`,
+      `buy ${category.name.toLowerCase()} online in Pakistan`,
+      `best ${category.shortName.toLowerCase()} in Pakistan`,
+      `${category.name.toLowerCase()} cash on delivery`,
+    ],
   });
 }
 
