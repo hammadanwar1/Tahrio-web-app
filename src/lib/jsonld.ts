@@ -99,12 +99,13 @@ function shippingLd(): Thing {
   };
 }
 
-/** `priceValidUntil` comes from the cached catalog snapshot (no Date() during prerender). */
+/** Price validity dates come from the cached catalog snapshot (no Date() during prerender). */
 export function productLd(
   p: Product,
   category: Category | undefined,
   reviews: Review[],
   priceValidUntil: string,
+  priceValidFrom: string,
 ): Thing {
   const url = absoluteUrl(productPath(p));
   const image = productImage(p);
@@ -137,6 +138,7 @@ export function productLd(
       url,
       priceCurrency: site.currency,
       price: p.price,
+      validFrom: priceValidFrom,
       priceValidUntil,
       availability: p.inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       itemCondition: 'https://schema.org/NewCondition',

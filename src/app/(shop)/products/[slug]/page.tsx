@@ -76,7 +76,7 @@ export default async function ProductPage({ params }: PageProps<'/products/[slug
           { name: p.name, path: productPath(p) },
         ]}
       />
-      <JsonLd data={productLd(p, category, reviews, catalog.priceValidUntil)} />
+      <JsonLd data={productLd(p, category, reviews, catalog.priceValidUntil, catalog.fetchedAt.slice(0, 10))} />
       <ProductMeta product={p} />
 
       <div className="container-page grid gap-8 pt-4 lg:grid-cols-2 lg:gap-12">
