@@ -1,14 +1,27 @@
-/** Brand mark from Figma "Brand": gradient/button tile with a white "T", plus wordmark. */
+import { brandGradientCss, markDot, markPath, markStroke, tileRadius } from '@/lib/brand';
+
+/** Brand mark (gradient tile + white "t" and dot, see lib/brand.ts), plus wordmark. */
 export function Logo({ size = 40, withWordmark = true }: { size?: number; withWordmark?: boolean }) {
   return (
     <span className="flex items-center gap-2.5">
-      <span
+      <svg
         aria-hidden
-        className="bg-gradient-button flex items-center justify-center font-bold text-white"
-        style={{ width: size, height: size, borderRadius: size * (20 / 72), fontSize: size * (40 / 72) }}
+        viewBox="0 0 512 512"
+        width={size}
+        height={size}
+        className="shrink-0"
+        style={{ background: brandGradientCss, borderRadius: size * (tileRadius / 512) }}
       >
-        T
-      </span>
+        <path
+          d={markPath}
+          fill="none"
+          stroke="#fff"
+          strokeWidth={markStroke}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle {...markDot} fill="#fff" />
+      </svg>
       {withWordmark && <span className="text-xl font-bold tracking-tight">Tahrio</span>}
     </span>
   );

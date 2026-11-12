@@ -10,7 +10,8 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test:api": "node --test \"backend/test/*.test.js\"",
     "db:reset": "node -e \"require('./backend/src/db').reset(); console.log('db reset from seed')\"",
-    "seo:audit": "node scripts/seo-audit.mjs"
+    "seo:audit": "node scripts/seo-audit.mjs",
+    "brand:assets": "node scripts/brand-assets.mjs"
   },
   "dependencies": {
     "@next/env": "16.4.0",

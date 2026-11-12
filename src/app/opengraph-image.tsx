@@ -1,51 +1,58 @@
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
-import { ImageResponse } from 'next/og';
+import { getCatalog } from '@/lib/catalog';
+import { productImage } from '@/lib/catalog-core';
+import { OgLockup, OgPill, ogBackground, ogJpeg, ogPhoto, ogSize } from '@/lib/og';
 
 export const alt = 'Tahrio – original mobile accessories in Pakistan';
-export const size = { width: 1200, height: 630 };
-export const contentType = 'image/png';
-
-const font = readFile(join(process.cwd(), 'src/assets/fonts/Outfit-700.ttf'));
+export const size = ogSize;
+export const contentType = 'image/jpeg';
 
 /** Default share card for the site (pages without their own opengraph-image inherit it). */
 export default async function Image() {
-  const bold = await font;
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          padding: 80,
-          gap: 28,
-          color: 'white',
-          fontFamily: 'Outfit',
-          background: 'linear-gradient(169deg, #1D4ED8 8%, #6D28D9 54%, #A21CAF 92%)',
-        }}
-      >
-        <div
-          style={{
-            width: 120,
-            height: 120,
-            borderRadius: 34,
-            background: 'linear-gradient(90deg, #22D3EE, #6366F1, #D946EF)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 68,
-          }}
-        >
-          T
+  const { products } = await getCatalog();
+  const picks = [...products]
+    .filter((p) => productImage(p))
+    .sort((a, b) => Number(!!b.hot) - Number(!!a.hot))
+    .slice(0, 4);
+  const photos = (await Promise.all(picks.map((p) => ogPhoto(productImage(p))))).filter(Boolean) as string[];
+
+  return ogJpeg(
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 64px',
+        gap: 48,
+        color: 'white',
+        fontFamily: 'Outfit',
+        background: ogBackground,
+      }}
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: 28 }}>
+        <OgLockup size={76} />
+        <div style={{ fontSize: 64, fontWeight: 700, lineHeight: 1.05 }}>Original mobile accessories in Pakistan</div>
+        <div style={{ fontSize: 28, fontWeight: 500, opacity: 0.85 }}>Earbuds · Chargers · Cases · Power banks · Smart watches</div>
+        <div style={{ display: 'flex', gap: 14 }}>
+          <OgPill>Cash on delivery</OgPill>
+          <OgPill>Nationwide delivery</OgPill>
         </div>
-        <div style={{ fontSize: 84, lineHeight: 1 }}>Tahrio</div>
-        <div style={{ fontSize: 44, opacity: 0.9 }}>Original mobile accessories in Pakistan</div>
-        <div style={{ fontSize: 30, opacity: 0.8 }}>Earbuds · Cases · Chargers · Power Banks · Cash on delivery</div>
       </div>
-    ),
-    { ...size, fonts: [{ name: 'Outfit', data: bold, weight: 700, style: 'normal' }] },
+      {photos.length >= 4 && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', width: 452, gap: 20 }}>
+          {photos.map((src, i) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={i}
+              src={src}
+              width={216}
+              height={216}
+              alt=""
+              style={{ borderRadius: 32, objectFit: 'cover', border: '4px solid rgba(255,255,255,.18)' }}
+            />
+          ))}
+        </div>
+      )}
+    </div>,
   );
 }
