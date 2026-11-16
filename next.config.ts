@@ -20,6 +20,7 @@ const nextConfig: NextConfig = {
   partialPrefetching: false,
   poweredByHeader: false,
   experimental: {
+    agentUpgrade: 'security',
     // Admin product photos (up to 5 MB) are uploaded through a Server Action.
     serverActions: { bodySizeLimit: '6mb' },
   },
