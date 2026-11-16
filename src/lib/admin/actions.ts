@@ -53,11 +53,39 @@ async function uploadImage(file: File) {
   return url;
 }
 
+/**
+ * Upload ticket for the product form: the browser uploads photos and videos straight to the API
+ * (videos are too big to pass through this server). The admin key stays on the server.
+ */
+export async function uploadTicketAction(): Promise<{ endpoint: string; ticket: string } | { error: string }> {
+  try {
+    const { ticket } = await adminFetch<{ ticket: string }>('/upload-ticket', { method: 'POST' });
+    return { endpoint: `${(process.env.TAHRIO_API_URL ?? '').replace(/\/$/, '')}/admin/uploads`, ticket };
+  } catch (err) {
+    if (err instanceof AdminApiError) return { error: err.message };
+    throw err;
+  }
+}
+
+const lines = (f: FormData, k: string) =>
+  text(f, k)
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+/** "Key: Value" per line → [{ key, value }] (lines without a colon are skipped). */
+function specRows(f: FormData) {
+  return lines(f, 'specs').flatMap((l) => {
+    const i = l.indexOf(':');
+    return i > 0 ? [{ key: l.slice(0, i).trim(), value: l.slice(i + 1).trim() }] : [];
+  });
+}
+
 export async function saveProductAction(productId: string | null, _prev: FormState, f: FormData): Promise<FormState> {
   let saved: AdminProduct;
   try {
-    const image = f.get('image');
-    const imageUrl = image instanceof File && image.size > 0 ? await uploadImage(image) : text(f, 'imageUrl') || null;
+    // Photos and video were already uploaded by the browser (MediaManager); these are their URLs.
+    const images = JSON.parse(text(f, 'images') || '[]') as string[];
     const body = {
       name: text(f, 'name'),
       fullName: text(f, 'fullName') || text(f, 'name'),
@@ -69,7 +97,10 @@ export async function saveProductAction(productId: string | null, _prev: FormSta
       price: text(f, 'price'),
       oldPrice: optionalNumber(f, 'oldPrice'),
       stock: optionalNumber(f, 'stock'),
-      imageUrl,
+      images, // the API makes the first one the main photo (imageUrl)
+      videoUrl: text(f, 'videoUrl') || null,
+      highlights: lines(f, 'highlights'),
+      specs: specRows(f),
       status: f.get('published') ? 'published' : 'draft',
       inStock: Boolean(f.get('inStock')),
       hot: Boolean(f.get('hot')),

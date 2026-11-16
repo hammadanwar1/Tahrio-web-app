@@ -33,7 +33,10 @@ export function galleryImages(p: Pick<Product, 'id' | 'imageUrl' | 'images'>): s
   return [...new Set(all.filter((src): src is string => Boolean(src)))];
 }
 
-export const withDiscount =(p: Product): Product => ({ ...p, discount: discountPercent(p.price, p.oldPrice) });
+/** Product video for the website: only uploaded videos (the app's bundled demo clips aren't on the web). */
+export const productVideo = (p: Pick<Product, 'videoUrl'>) => (p.videoUrl && /^https?:\/\//.test(p.videoUrl) ? p.videoUrl : null);
+
+export const withDiscount = (p: Product): Product => ({ ...p, discount: discountPercent(p.price, p.oldPrice) });
 
 const norm = (s: unknown) => String(s ?? '').toLowerCase().trim();
 

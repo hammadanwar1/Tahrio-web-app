@@ -1,10 +1,11 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState } from 'react';
 
 import { allModels } from '@/data/devices';
 import { deleteProductAction, saveProductAction } from '@/lib/admin/actions';
 import type { AdminCategory, AdminProduct } from '@/lib/admin/api';
+import { MediaManager } from './media-manager';
 import { ActionButton, FormMessage, SubmitButton, inputClass } from './ui';
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
@@ -30,16 +31,13 @@ export function ProductForm({
   product,
   categories,
   brandNames = [],
-  imageSrc,
 }: {
   product?: AdminProduct;
   categories: AdminCategory[];
   /** Suggestions for the Brand field (Brands page in the admin panel). */
   brandNames?: string[];
-  imageSrc?: string | null;
 }) {
   const [state, formAction] = useActionState(saveProductAction.bind(null, product?.id ?? null), undefined);
-  const [preview, setPreview] = useState(imageSrc ?? null);
 
   return (
     <form action={formAction} className="grid gap-6 xl:grid-cols-[1fr_320px]">
@@ -95,6 +93,22 @@ export function ProductForm({
           <Field label="Description">
             <textarea name="description" rows={5} maxLength={4000} defaultValue={product?.description} className={`${inputClass} h-auto py-2.5`} />
           </Field>
+          <Field label="Key highlights" hint="One per line (max 12), shown as bullet points, e.g. “30-hour battery with case”">
+            <textarea
+              name="highlights"
+              rows={4}
+              defaultValue={product?.highlights?.join('\n')}
+              className={`${inputClass} h-auto py-2.5`}
+            />
+          </Field>
+          <Field label="Specifications" hint="One per line as “Name: Value” (max 20), e.g. “Battery: 500 mAh”">
+            <textarea
+              name="specs"
+              rows={4}
+              defaultValue={product?.specs?.map((r) => `${r.key}: ${r.value}`).join('\n')}
+              className={`${inputClass} h-auto py-2.5`}
+            />
+          </Field>
         </section>
 
         <section className="flex flex-col gap-4 rounded-card bg-surface p-5 shadow-card">
@@ -120,26 +134,11 @@ export function ProductForm({
 
       <div className="flex flex-col gap-6">
         <section className="flex flex-col gap-4 rounded-card bg-surface p-5 shadow-card">
-          <h2 className="font-semibold">Photo</h2>
-          {preview ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={preview} alt="" className="aspect-square w-full rounded-image bg-bg object-cover" />
-          ) : (
-            <div className="flex aspect-square w-full items-center justify-center rounded-image bg-bg text-sm text-muted">No photo</div>
-          )}
-          <input type="hidden" name="imageUrl" defaultValue={product?.imageUrl ?? ''} />
-          <Field label="Upload a new photo" hint="JPEG, PNG or WebP, up to 5 MB">
-            <input
-              name="image"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) setPreview(URL.createObjectURL(file));
-              }}
-              className="text-sm file:mr-3 file:rounded-chip file:border-0 file:bg-primary-soft file:px-3 file:py-2 file:text-sm file:font-semibold file:text-primary"
-            />
-          </Field>
+          <h2 className="font-semibold">Photos &amp; video</h2>
+          <MediaManager
+            initialImages={product?.images?.length ? product.images : product?.imageUrl ? [product.imageUrl] : []}
+            initialVideo={product?.videoUrl ?? null}
+          />
         </section>
 
         <section className="flex flex-col gap-4 rounded-card bg-surface p-5 shadow-card">

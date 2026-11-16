@@ -99,6 +99,25 @@ function adminOnly(req, _res, next) {
   next();
 }
 
+// Upload tickets: the admin panel (holding the admin key) asks for one, and the admin's browser
+// then uploads photos / videos straight here. Big videos can't pass through the website's own
+// server (Vercel caps request bodies at 4.5 MB), and the admin key never reaches the browser.
+const UPLOAD_TICKET_MS = 15 * 60 * 1000;
+const ticketSig = (expires) => crypto.createHmac('sha256', ADMIN_KEY).update(`upload:${expires}`).digest('hex');
+
+function adminOrUploadTicket(req, res, next) {
+  if (req.headers['x-admin-key'] === ADMIN_KEY) return next();
+  const [expires, sig] = String(req.headers['x-upload-ticket'] || '').split('.');
+  const expected = ticketSig(expires);
+  const valid =
+    Number(expires) > Date.now() &&
+    typeof sig === 'string' &&
+    sig.length === expected.length &&
+    crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected));
+  if (!valid) throw L.httpError(403, 'Upload not allowed (ticket missing or expired, reload the page)');
+  next();
+}
+
 const cartOf = (db, uid) => (db.carts[uid] = db.carts[uid] || []);
 const wishlistOf = (db, uid) => (db.wishlists[uid] = db.wishlists[uid] || []);
 const recentOf = (db, uid) => (db.recentSearches[uid] = db.recentSearches[uid] || []);
@@ -473,7 +492,11 @@ app.delete('/api/admin/products/:id', adminOnly, (req, res) => {
 });
 // Raw body: image/jpeg|png|webp up to 5 MB, or video/mp4|quicktime up to 50 MB → { url }.
 const UPLOAD_TYPES = { ...IMAGE_TYPES, ...VIDEO_TYPES };
-app.post('/api/admin/uploads', adminOnly, express.raw({ type: Object.keys(UPLOAD_TYPES), limit: '50mb' }), (req, res) => {
+app.post('/api/admin/upload-ticket', adminOnly, (_req, res) => {
+  const expires = Date.now() + UPLOAD_TICKET_MS;
+  res.json({ ticket: `${expires}.${ticketSig(expires)}`, expires });
+});
+app.post('/api/admin/uploads', adminOrUploadTicket, express.raw({ type: Object.keys(UPLOAD_TYPES), limit: '50mb' }), (req, res) => {
   const type = req.headers['content-type'];
   const ext = UPLOAD_TYPES[type];
   const buf = req.body;

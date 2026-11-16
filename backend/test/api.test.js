@@ -381,3 +381,17 @@ test('admin brands: list, add, logo, rename moves products, reorder, delete', as
   assert.equal(moved.body.at(-2).id, created.body.id);
   assert.equal((await call('DELETE', `/admin/brands/${created.body.id}`, null, admin)).status, 204);
 });
+
+test('upload tickets: browser uploads without the admin key', async () => {
+  token = null;
+  const png = Buffer.from('89504e470d0a1a0a0000000d49484452', 'hex');
+  const upload = (headers) =>
+    fetch(`${base}/admin/uploads`, { method: 'POST', headers: { 'content-type': 'image/png', ...headers }, body: png });
+  assert.equal((await upload({})).status, 403);
+  assert.equal((await upload({ 'x-upload-ticket': `${Date.now() + 60000}.forged` })).status, 403);
+  assert.equal((await call('POST', '/admin/upload-ticket')).status, 403);
+  const { body } = await call('POST', '/admin/upload-ticket', null, { 'x-admin-key': 'tahrio-admin' });
+  const ok = await upload({ 'x-upload-ticket': body.ticket });
+  assert.equal(ok.status, 201);
+  assert.match((await ok.json()).url, /\/uploads\/.+\.png$/);
+});

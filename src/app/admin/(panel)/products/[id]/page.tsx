@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { ApiError, PageHeader } from '@/components/admin/page-header';
 import { ProductForm } from '@/components/admin/product-form';
 import { loadAdmin, type AdminBrand, type AdminCategory, type AdminProduct } from '@/lib/admin/api';
-import { productImage, productPath } from '@/lib/catalog-core';
+import { productPath } from '@/lib/catalog-core';
 
 export const metadata: Metadata = { title: 'Edit product' };
 
@@ -41,7 +41,6 @@ export default async function EditProductPage({ params, searchParams }: PageProp
         product={p}
         categories={categories.data}
         brandNames={brands.data?.map((b) => b.name)}
-        imageSrc={productImage(p)}
       />
     </>
   );
