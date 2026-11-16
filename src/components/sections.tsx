@@ -58,23 +58,6 @@ export function PromoBanner({ banner, category, headingLevel = 'h2' }: {
   );
 }
 
-export function CategoryTiles({ categories }: { categories: Category[] }) {
-  return (
-    <ul className="scrollbar-none -mx-1 flex gap-3 overflow-x-auto px-1 sm:grid sm:grid-cols-5 sm:overflow-visible lg:grid-cols-10">
-      {categories.map((c) => (
-        <li key={c.id} className="shrink-0">
-          <Link href={categoryPath(c)} className="group flex w-[72px] flex-col items-center gap-2 sm:w-auto">
-            <span className="flex size-[66px] items-center justify-center rounded-[22px] border border-line bg-surface text-primary transition-colors group-hover:border-primary">
-              <ProductGlyph kind={c.icon} className="size-[30px]" />
-            </span>
-            <span className="text-center text-xs font-medium">{c.shortName}</span>
-          </Link>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 export function TrustBar() {
   const items = [
     { icon: Banknote, title: 'Cash on delivery', text: 'Pay when it arrives, anywhere in Pakistan' },

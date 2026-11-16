@@ -1,11 +1,14 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 
 import { JsonLd } from '@/components/json-ld';
 import { ProductGrid } from '@/components/product-card';
-import { CategoryTiles, FaqList, PromoBanner, SectionHeader, TrustBar } from '@/components/sections';
+import { CategoryStrip } from '@/components/category-strip';
+import { FaqList, PromoBanner, SectionHeader } from '@/components/sections';
+import { deviceFamilies } from '@/data/devices';
 import { storeFaqs } from '@/data/seo-content';
 import { getCatalog } from '@/lib/catalog';
-import { filterProducts } from '@/lib/catalog-core';
+import { filterProducts, modelPath } from '@/lib/catalog-core';
 import { faqLd } from '@/lib/jsonld';
 import { pageMetadata } from '@/lib/seo';
 import { site } from '@/lib/site';
@@ -24,6 +27,7 @@ export default async function HomePage() {
   const catalog = await getCatalog();
   const hot = filterProducts(catalog, { section: 'hot' });
   const fresh = filterProducts(catalog, { section: 'new' });
+  const sale = filterProducts(catalog, { onSale: true }).sort((a, b) => (b.discount ?? 0) - (a.discount ?? 0));
   const banner = catalog.banners.find((b) => b.placement === 'home');
   const bannerCategory = catalog.categories.find((c) => c.id === banner?.categoryId);
 
@@ -37,8 +41,8 @@ export default async function HomePage() {
       {banner && <PromoBanner banner={banner} category={bannerCategory} />}
 
       <section>
-        <SectionHeader title="Categories" href="/collections" linkLabel="See all" />
-        <CategoryTiles categories={catalog.categories} />
+        <SectionHeader title="Shop by Category" href="/collections" linkLabel="See all" />
+        <CategoryStrip categories={catalog.categories} />
       </section>
 
       <section>
@@ -46,10 +50,32 @@ export default async function HomePage() {
         <ProductGrid products={hot.slice(0, 8)} eagerCount={2} />
       </section>
 
-      <TrustBar />
+      {sale.length > 0 && (
+        <section>
+          <SectionHeader title="On Sale" href="/sale" linkLabel="View all deals" />
+          <ProductGrid products={sale.slice(0, 4)} />
+        </section>
+      )}
 
       <section>
-        <SectionHeader title="New Arrivals" href="/collections" />
+        <SectionHeader title="Shop by Model" />
+        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          {deviceFamilies.map((f) => (
+            <li key={f.id}>
+              <Link
+                href={modelPath(f.id)}
+                className="flex h-full flex-col justify-between gap-3 rounded-card border border-line bg-surface p-4 transition-colors hover:border-primary"
+              >
+                <span className="font-semibold">{f.name}</span>
+                <span className="text-xs text-muted">{f.series[0].models[0]} & more</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section>
+        <SectionHeader title="New Arrivals" href="/new-arrivals" />
         <ProductGrid products={fresh.slice(0, 8)} />
       </section>
 

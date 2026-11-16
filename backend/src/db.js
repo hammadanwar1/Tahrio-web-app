@@ -35,7 +35,16 @@ function load() {
 function applyStorePolicy(data) {
   const seed = JSON.parse(fs.readFileSync(SEED_FILE, 'utf8'));
   data.deliveryMethods = seed.deliveryMethods;
-  for (const p of data.products || []) p.freeDelivery = false;
+  // "Shop by Brand" list (added after launch); after that it's managed in the admin panel.
+  if (!Array.isArray(data.brands)) data.brands = seed.brands;
+  const seedById = Object.fromEntries(seed.products.map((p) => [p.id, p]));
+  for (const p of data.products || []) {
+    p.freeDelivery = false;
+    // Fields added after launch: fill them in once from the seed, never overwrite admin edits.
+    const s = seedById[p.id];
+    if (p.brand === undefined || p.brand === '') p.brand = (s && s.brand) || '';
+    if (p.models === undefined) p.models = (s && s.models) || [];
+  }
 }
 
 function save() {

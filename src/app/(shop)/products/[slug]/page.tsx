@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
+import { Fragment } from 'react';
 import { notFound } from 'next/navigation';
 import { BadgeCheck, Banknote, RotateCcw, Star, Truck } from 'lucide-react';
 
@@ -8,13 +8,16 @@ import { Breadcrumbs } from '@/components/breadcrumbs';
 import { JsonLd } from '@/components/json-ld';
 import { AddToCartPanel, WishlistButton } from '@/components/product-actions';
 import { ProductGrid } from '@/components/product-card';
-import { ProductGlyph } from '@/components/product-glyph';
+import { ProductGallery } from '@/components/product-gallery';
 import { ProductMeta } from '@/components/product-meta';
 import { getCatalog } from '@/lib/catalog';
 import {
+  brandOf,
+  brandPath,
   categoryPath,
   findProductBySlug,
-  productImage,
+  galleryImages,
+  modelPath,
   productPath,
   productSlug,
   relatedProducts,
@@ -66,7 +69,7 @@ export default async function ProductPage({ params }: PageProps<'/products/[slug
   const category = catalog.categories.find((c) => c.id === p.categoryId);
   const reviews = catalog.reviews.filter((r) => r.productId === p.id);
   const related = relatedProducts(catalog, p);
-  const image = productImage(p);
+  const brand = brandOf(p);
 
   return (
     <>
@@ -79,63 +82,64 @@ export default async function ProductPage({ params }: PageProps<'/products/[slug
       <JsonLd data={productLd(p, category, reviews, catalog.priceValidUntil, catalog.fetchedAt.slice(0, 10))} />
       <ProductMeta product={p} />
 
-      <div className="container-page grid gap-8 pt-4 lg:grid-cols-2 lg:gap-12">
+      <div className="container-page grid gap-6 pt-4 lg:grid-cols-2 lg:gap-8">
         {/* Gallery */}
-        <div className="relative">
-          <div className="relative aspect-square overflow-hidden rounded-sheet bg-primary-soft">
-            {image ? (
-              <Image
-                src={image}
-                alt={`${p.fullName}${p.colors[0] ? ` in ${p.colors[0].name}` : ''}`}
-                fill
-                sizes="(min-width: 1024px) 600px, 100vw"
-                className="object-cover"
-                preload
-              />
-            ) : (
-              <div className="flex h-full items-center justify-center">
-                <span className="flex size-3/5 items-center justify-center rounded-full bg-white/70 text-primary">
-                  <ProductGlyph kind={p.icon} className="size-1/2" />
-                </span>
-              </div>
-            )}
-            {!!p.discount && (
-              <span className="absolute left-4 top-4 rounded-full bg-ink px-3 py-1 text-sm font-semibold text-white">
-                -{p.discount}%
-              </span>
-            )}
-          </div>
-          <WishlistButton productId={p.id} className="absolute right-4 top-4 !size-11" />
+        <div className="relative self-start rounded-sheet border border-line bg-surface p-3 sm:p-4 lg:sticky lg:top-20">
+          <ProductGallery
+            images={galleryImages(p)}
+            alt={`${p.fullName}${p.colors[0] ? ` in ${p.colors[0].name}` : ''}`}
+            icon={p.icon}
+          />
+          {!!p.discount && (
+            <span className="bg-gradient-button absolute left-7 top-7 rounded-full px-4 py-1.5 text-sm font-bold text-white shadow">
+              {p.discount}% OFF
+            </span>
+          )}
+          <WishlistButton productId={p.id} className="absolute right-7 top-7 !size-11" />
         </div>
 
         {/* Details */}
-        <div className="space-y-6">
+        <div className="space-y-5 self-start rounded-sheet border border-line bg-surface p-5 sm:p-8">
           <div className="flex flex-wrap items-center justify-between gap-3">
+            <Link
+              href={brandPath(brand)}
+              className="bg-gradient-button bg-clip-text text-lg font-bold tracking-tight text-transparent"
+            >
+              {brand}
+            </Link>
             {category && (
-              <Link
-                href={categoryPath(category)}
-                className="rounded-full bg-primary-soft px-3 py-1 text-sm font-medium text-primary"
-              >
-                {p.label}
+              <Link href={categoryPath(category)} className="rounded-full bg-primary-soft px-3 py-1 text-sm font-medium text-primary">
+                {category.name}
               </Link>
             )}
-            <a href="#reviews" className="flex items-center gap-1 text-sm">
-              <Star aria-hidden className="size-4 fill-star text-star" />
-              <span className="font-semibold">{p.rating.toFixed(1)}</span>
-              <span className="text-muted">({compactCount(p.reviews)} reviews)</span>
-            </a>
           </div>
           <h1 className="text-[26px] font-bold leading-tight sm:text-[32px]">{p.fullName}</h1>
+          <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+            {p.reviews > 0 ? (
+              <a href="#reviews" className="flex items-center gap-1">
+                <Star aria-hidden className="size-4 fill-star text-star" />
+                <span className="font-semibold">{p.rating.toFixed(1)}</span>
+                <span className="text-muted">({compactCount(p.reviews)} reviews)</span>
+              </a>
+            ) : (
+              <span />
+            )}
+            <span className={`font-semibold ${p.inStock ? 'text-success' : 'text-danger'}`}>
+              {p.inStock ? 'In Stock' : 'Out of Stock'}
+            </span>
+          </div>
           <p className="flex flex-wrap items-center gap-3">
-            <span className="text-[28px] font-bold text-primary">{rs(p.price)}</span>
+            <span className="text-[30px] font-bold text-primary">{rs(p.price)}</span>
             {!!p.discount && p.oldPrice && (
-              <>
-                <span className="text-lg text-muted line-through">
-                  <span className="sr-only">Original price </span>
-                  {rs(p.oldPrice)}
-                </span>
-                <span className="rounded-full bg-ink px-3 py-1 text-sm font-semibold text-white">-{p.discount}%</span>
-              </>
+              <span className="text-lg text-muted line-through">
+                <span className="sr-only">Original price </span>
+                {rs(p.oldPrice)}
+              </span>
+            )}
+            {!!p.discount && p.oldPrice && (
+              <span className="rounded-full bg-success/10 px-3 py-1 text-sm font-semibold text-success">
+                You save {rs(p.oldPrice - p.price)}
+              </span>
             )}
           </p>
           <p className="text-[15px] leading-relaxed text-muted">{p.description}</p>
@@ -145,51 +149,86 @@ export default async function ProductPage({ params }: PageProps<'/products/[slug
           <ul className="grid gap-3 rounded-card bg-bg p-4 text-sm sm:grid-cols-2">
             <li className="flex items-center gap-3">
               <Truck aria-hidden className="size-5 text-primary" />
-              Delivery {rs(site.policy.standardDeliveryFee)} · {site.policy.deliveryDays.min}–
-              {site.policy.deliveryDays.max} days
+              Delivery {rs(site.policy.standardDeliveryFee)} · {site.policy.deliveryDays.min}–{site.policy.deliveryDays.max} days
             </li>
             <li className="flex items-center gap-3">
               <Banknote aria-hidden className="size-5 text-primary" /> Cash on delivery available
             </li>
             <li className="flex items-center gap-3">
-              <RotateCcw aria-hidden className="size-5 text-primary" /> {site.policy.returnDays}-day free returns
+              <RotateCcw aria-hidden className="size-5 text-primary" /> {site.policy.returnDays}-day easy returns
             </li>
             <li className="flex items-center gap-3">
-              <BadgeCheck aria-hidden className="size-5 text-primary" /> {p.inStock ? 'In stock' : 'Out of stock'} ·
-              Original product
+              <BadgeCheck aria-hidden className="size-5 text-primary" /> 100% original product
             </li>
           </ul>
-
-          <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 rounded-card border border-line bg-surface p-5 text-sm">
-            <dt className="text-muted">Brand</dt>
-            <dd>{site.name}</dd>
-            {category && (
-              <>
-                <dt className="text-muted">Category</dt>
-                <dd>
-                  <Link href={categoryPath(category)} className="text-primary hover:underline">
-                    {category.name}
-                  </Link>
-                </dd>
-              </>
-            )}
-            {p.colors.length > 0 && (
-              <>
-                <dt className="text-muted">Colours</dt>
-                <dd>{p.colors.map((c) => c.name).join(', ')}</dd>
-              </>
-            )}
-            {p.tags.length > 0 && (
-              <>
-                <dt className="text-muted">Features</dt>
-                <dd>{p.tags.join(', ')}</dd>
-              </>
-            )}
-            <dt className="text-muted">SKU</dt>
-            <dd>{p.id}</dd>
-          </dl>
         </div>
       </div>
+
+      <section className="container-page mt-12 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold">Product details</h2>
+          <p className="text-[15px] leading-relaxed">{p.description}</p>
+          {!!p.highlights?.length && (
+            <ul className="list-disc space-y-1.5 pl-5 text-[15px]">
+              {p.highlights.map((h) => (
+                <li key={h}>{h}</li>
+              ))}
+            </ul>
+          )}
+          {!!p.models?.length && (
+            <div>
+              <h3 className="mb-2 font-semibold">Compatible with</h3>
+              <ul className="flex flex-wrap gap-2">
+                {p.models.map((m) => (
+                  <li key={m}>
+                    <Link href={modelPath(m)} className="block rounded-full border border-line px-3 py-1 text-sm hover:border-primary hover:text-primary">
+                      {m}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+        <dl className="grid h-fit grid-cols-[auto_1fr] gap-x-6 gap-y-2.5 rounded-card border border-line bg-surface p-5 text-sm">
+          <dt className="text-muted">Brand</dt>
+          <dd>
+            <Link href={brandPath(brand)} className="text-primary hover:underline">
+              {brand}
+            </Link>
+          </dd>
+          {category && (
+            <>
+              <dt className="text-muted">Category</dt>
+              <dd>
+                <Link href={categoryPath(category)} className="text-primary hover:underline">
+                  {category.name}
+                </Link>
+              </dd>
+            </>
+          )}
+          {p.colors.length > 0 && (
+            <>
+              <dt className="text-muted">Colours</dt>
+              <dd>{p.colors.map((c) => c.name).join(', ')}</dd>
+            </>
+          )}
+          {p.tags.length > 0 && (
+            <>
+              <dt className="text-muted">Features</dt>
+              <dd>{p.tags.join(', ')}</dd>
+            </>
+          )}
+          {p.specs?.map((s) => (
+            <Fragment key={s.key}>
+              <dt className="text-muted">{s.key}</dt>
+              <dd>{s.value}</dd>
+            </Fragment>
+          ))}
+          <dt className="text-muted">SKU</dt>
+          <dd>{p.id}</dd>
+        </dl>
+      </section>
 
       <section id="reviews" className="container-page mt-14 max-w-4xl scroll-mt-32">
         <h2 className="mb-1 text-2xl font-bold">Customer reviews</h2>

@@ -36,6 +36,14 @@
   --shadow-card: 0 8px 20px rgba(74, 43, 184, 0.08);
   --shadow-nav: 0 12px 30px rgba(23, 20, 31, 0.22);
   --shadow-toast: 0 8px 24px rgba(23, 20, 31, 0.12);
+
+  /* Announcement bar: content is rendered twice, so -50% loops seamlessly. */
+  --animate-marquee: marquee 40s linear infinite;
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
 }
 
 @layer base {
@@ -74,5 +82,11 @@
   scrollbar-width: none;
   &::-webkit-scrollbar {
     display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
   }
 }

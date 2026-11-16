@@ -73,6 +73,79 @@ router.delete('/categories/:id', (req, res) => {
   res.status(204).end();
 });
 
+// ---------- brands ("Shop by Brand" on the website) ----------
+// Products point at a brand by name (product.brand), compared ignoring case and punctuation.
+const brandKey = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+const brandsOf = (db) => (db.brands = db.brands || []);
+const brandRows = (db) =>
+  brandsOf(db).map((b) => ({ ...b, productCount: db.products.filter((p) => brandKey(p.brand || 'Tahrio') === brandKey(b.name)).length }));
+
+function brandInput(body, db, selfId) {
+  const b = body || {};
+  const out = {};
+  if (b.name !== undefined) {
+    const name = String(b.name).trim();
+    if (!name || name.length > 40) throw L.httpError(400, 'Brand name is required (max 40 characters)');
+    if (brandsOf(db).some((x) => x.id !== selfId && brandKey(x.name) === brandKey(name))) throw L.httpError(409, 'That brand already exists');
+    out.name = name;
+  }
+  if (b.color !== undefined) {
+    if (b.color && !/^#[0-9a-f]{6}$/i.test(b.color)) throw L.httpError(400, 'Colour must look like #1A2B3C');
+    out.color = b.color || null;
+  }
+  if (b.logoUrl !== undefined) {
+    if (b.logoUrl && (typeof b.logoUrl !== 'string' || b.logoUrl.length > 500)) throw L.httpError(400, 'Invalid logo URL');
+    out.logoUrl = b.logoUrl || null;
+  }
+  return out;
+}
+
+router.get('/brands', (_req, res) => res.json(brandRows(store.get())));
+
+router.post('/brands', (req, res) => {
+  const db = store.get();
+  const input = brandInput(req.body, db);
+  if (!input.name) throw L.httpError(400, 'Brand name is required');
+  const brand = { id: A.uniqueId(input.name, brandsOf(db).map((x) => x.id), 'brand'), color: null, logoUrl: null, ...input };
+  brandsOf(db).push(brand);
+  store.save();
+  res.status(201).json(brand);
+});
+
+router.patch('/brands/:id', (req, res) => {
+  const db = store.get();
+  const brand = brandsOf(db).find((x) => x.id === req.params.id);
+  if (!brand) throw L.httpError(404, 'Brand not found');
+  const input = brandInput(req.body, db, brand.id);
+  // Renaming moves its products along with it.
+  if (input.name && brandKey(input.name) !== brandKey(brand.name)) {
+    for (const p of db.products) if (brandKey(p.brand || 'Tahrio') === brandKey(brand.name)) p.brand = input.name;
+  }
+  Object.assign(brand, input);
+  store.save();
+  res.json(brand);
+});
+
+// { direction: 'up' | 'down' } — order in the website menu.
+router.post('/brands/:id/move', (req, res) => {
+  const db = store.get();
+  const list = brandsOf(db);
+  const i = list.findIndex((x) => x.id === req.params.id);
+  if (i < 0) throw L.httpError(404, 'Brand not found');
+  const j = req.body.direction === 'up' ? i - 1 : i + 1;
+  if (j >= 0 && j < list.length) [list[i], list[j]] = [list[j], list[i]];
+  store.save();
+  res.json(brandRows(db));
+});
+
+router.delete('/brands/:id', (req, res) => {
+  const db = store.get();
+  if (!brandsOf(db).some((x) => x.id === req.params.id)) throw L.httpError(404, 'Brand not found');
+  db.brands = brandsOf(db).filter((x) => x.id !== req.params.id);
+  store.save();
+  res.status(204).end();
+});
+
 // ---------- discounts ----------
 const discountsOf = (db) => (db.discounts = db.discounts || []);
 const withStatus = (d) => ({ ...d, status: L.discountStatus(d) });

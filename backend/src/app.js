@@ -109,12 +109,16 @@ app.get('/api/health', (_req, res) => res.json({ ok: true, name: 'tahrio-api', t
 // ---------- auth ----------
 app.post('/api/auth/login', wrap(async (req, res) => {
   const db = store.get();
-  const phone = normalizePhone(req.body.phone);
-  const user = db.users.find((u) => u.phone === phone && !u.isGuest);
-  if (!user || !(await bcrypt.compare(String(req.body.password || ''), user.passwordHash))) {
-    recordLogin(req, { user, phone, method: 'password', result: 'failed', reason: user ? 'wrong password' : 'unknown number' });
+  // Sign in with a phone number (app + website) or the email given at signup (website).
+  const id = String(req.body.email || req.body.phone || '').trim();
+  const byEmail = id.includes('@');
+  const email = byEmail ? id.toLowerCase() : null;
+  const phone = byEmail ? null : normalizePhone(id);
+  const user = db.users.find((u) => !u.isGuest && (byEmail ? u.email === email : u.phone === phone));
+  if (!user || !user.passwordHash || !(await bcrypt.compare(String(req.body.password || ''), user.passwordHash))) {
+    recordLogin(req, { user, phone, email, method: 'password', result: 'failed', reason: user ? 'wrong password' : byEmail ? 'unknown email' : 'unknown number' });
     store.save();
-    throw L.httpError(401, 'Incorrect phone number or password');
+    throw L.httpError(401, byEmail ? 'Incorrect email or password' : 'Incorrect phone number or password');
   }
   if (user.blocked) {
     recordLogin(req, { user, method: 'password', result: 'failed', reason: 'blocked' });
@@ -133,7 +137,23 @@ app.post('/api/auth/register', wrap(async (req, res) => {
   if (!name || !/^03\d{9}$/.test(phone)) throw L.httpError(400, 'Enter your name and a valid 03XX-XXXXXXX phone number');
   if (!password || String(password).length < 6) throw L.httpError(400, 'Password must be at least 6 characters');
   if (db.users.some((u) => u.phone === phone)) throw L.httpError(409, 'An account with this phone already exists');
-  const user = { id: `u-${Date.now()}`, name, phone, isGuest: false, createdAt: new Date().toISOString(), passwordHash: await bcrypt.hash(password, 10) };
+  // Email is optional for the app, required by the website's signup form.
+  const email = req.body.email ? String(req.body.email).trim().toLowerCase() : null;
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw L.httpError(400, 'Enter a valid email address');
+  if (email && db.users.some((u) => u.email === email)) throw L.httpError(409, 'An account with this email already exists');
+  // Device the account was created on, shown in the admin panel. The website sends the name the
+  // customer confirmed; otherwise it is read from the request headers.
+  const device = String(req.body.device || '').trim().slice(0, 80) || A.clientInfo(req.headers).device;
+  const user = {
+    id: `u-${Date.now()}`,
+    name: String(name).trim().slice(0, 80),
+    phone,
+    email,
+    device,
+    isGuest: false,
+    createdAt: new Date().toISOString(),
+    passwordHash: await bcrypt.hash(password, 10),
+  };
   db.users.push(user);
   recordLogin(req, { user, method: 'password', result: 'signup' });
   store.save();
@@ -175,6 +195,7 @@ app.get('/api/me', auth, (req, res) => res.json(publicUser(req.user)));
 
 // ---------- catalog ----------
 app.get('/api/categories', (_req, res) => res.json(L.categoriesWithCounts(store.get())));
+app.get('/api/brands', (_req, res) => res.json(store.get().brands || []));
 
 app.get('/api/banners', (req, res) => {
   const db = store.get();

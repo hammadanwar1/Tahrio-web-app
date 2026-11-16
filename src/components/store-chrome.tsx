@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { JsonLd } from '@/components/json-ld';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
+import { SocialIcon, whatsappUrl } from '@/components/social-icons';
 import { StoreProvider } from '@/components/store-provider';
 import { organizationLd, websiteLd } from '@/lib/jsonld';
 
@@ -23,6 +24,15 @@ export function StoreChrome({ children }: { children: ReactNode }) {
           {children}
         </main>
         <SiteFooter />
+        <a
+          href={whatsappUrl()}
+          target="_blank"
+          rel="noopener"
+          aria-label="Chat with us on WhatsApp"
+          className="fixed bottom-5 left-5 z-40 flex size-14 items-center justify-center rounded-full bg-[#25d366] text-white shadow-nav transition-transform hover:scale-105"
+        >
+          <SocialIcon name="whatsapp" className="size-7" />
+        </a>
       </StoreProvider>
     </>
   );

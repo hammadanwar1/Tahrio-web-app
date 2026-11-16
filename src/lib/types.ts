@@ -16,6 +16,14 @@ export interface Category {
   filters?: string[];
 }
 
+/** "Shop by Brand" entry, managed in the admin panel (logo uploaded there). */
+export interface Brand {
+  id: string;
+  name: string;
+  color?: string | null;
+  logoUrl?: string | null;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -42,6 +50,14 @@ export interface Product {
   description: string;
   variantLabel?: string;
   discount?: number;
+  /** Empty → sold as the store's own brand. */
+  brand?: string;
+  /** Phone / device models it fits (data/devices.ts names), for "Shop by Model". */
+  models?: string[];
+  /** Extra photos (first one is imageUrl). */
+  images?: string[];
+  highlights?: string[];
+  specs?: { key: string; value: string }[];
 }
 
 export interface Review {

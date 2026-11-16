@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from 'react';
 
+import { allModels } from '@/data/devices';
 import { deleteProductAction, saveProductAction } from '@/lib/admin/actions';
 import type { AdminCategory, AdminProduct } from '@/lib/admin/api';
 import { ActionButton, FormMessage, SubmitButton, inputClass } from './ui';
@@ -25,7 +26,18 @@ function Toggle({ name, label, defaultChecked }: { name: string; label: string; 
   );
 }
 
-export function ProductForm({ product, categories, imageSrc }: { product?: AdminProduct; categories: AdminCategory[]; imageSrc?: string | null }) {
+export function ProductForm({
+  product,
+  categories,
+  brandNames = [],
+  imageSrc,
+}: {
+  product?: AdminProduct;
+  categories: AdminCategory[];
+  /** Suggestions for the Brand field (Brands page in the admin panel). */
+  brandNames?: string[];
+  imageSrc?: string | null;
+}) {
   const [state, formAction] = useActionState(saveProductAction.bind(null, product?.id ?? null), undefined);
   const [preview, setPreview] = useState(imageSrc ?? null);
 
@@ -56,7 +68,30 @@ export function ProductForm({ product, categories, imageSrc }: { product?: Admin
             <Field label="Label" hint="e.g. “Wireless Earbuds”">
               <input name="label" maxLength={80} defaultValue={product?.label} className={inputClass} />
             </Field>
+            <Field label="Brand" hint="Pick from the list so it appears under “Shop by Brand”. Empty = Tahrio">
+              <input name="brand" maxLength={60} list="brand-names" defaultValue={product?.brand} placeholder="e.g. Anker" className={inputClass} />
+              <datalist id="brand-names">
+                {brandNames.map((name) => (
+                  <option key={name} value={name} />
+                ))}
+              </datalist>
+            </Field>
           </div>
+          <Field
+            label="Compatible models"
+            hint="One per line, e.g. iPhone 17 Pro Max. Shoppers pick one on the product page and find it under “Shop by Model”. Leave empty for universal products."
+          >
+            <textarea
+              name="models"
+              rows={4}
+              defaultValue={product?.models?.join('\n')}
+              className={`${inputClass} h-auto py-2.5`}
+            />
+          </Field>
+          <details className="-mt-2 text-xs text-muted">
+            <summary className="cursor-pointer font-medium text-primary">Model names used in the website menu</summary>
+            <p className="mt-2 leading-relaxed">{allModels.join(' · ')}</p>
+          </details>
           <Field label="Description">
             <textarea name="description" rows={5} maxLength={4000} defaultValue={product?.description} className={`${inputClass} h-auto py-2.5`} />
           </Field>

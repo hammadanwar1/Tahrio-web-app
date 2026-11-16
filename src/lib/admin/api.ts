@@ -2,7 +2,7 @@
 // call re-checks the admin session (layouts alone are not an auth boundary).
 import 'server-only';
 
-import type { Category, Product } from '@/lib/types';
+import type { Brand, Category, Product } from '@/lib/types';
 import { requireAdmin } from './session';
 
 const API = (process.env.TAHRIO_API_URL ?? '').replace(/\/$/, '');
@@ -87,15 +87,21 @@ export type AdminProduct = Product & {
 
 export type AdminCategory = Category & { itemCount: number };
 
+export type AdminBrand = Brand & { productCount: number };
+
 export interface AdminUser {
   id: string;
   name: string;
   phone: string | null;
-  email?: string;
+  email?: string | null;
+  /** Device the account was created on (website signup asks for it). */
+  device?: string | null;
+  createdAt?: string;
   isGuest: boolean;
   blocked: boolean;
   online: boolean;
   orders: number;
   spent: number;
-  lastLogin: string | null;
+  /** Latest successful login event. */
+  lastLogin: { createdAt: string; device: string | null; platform: string; city: string | null } | null;
 }

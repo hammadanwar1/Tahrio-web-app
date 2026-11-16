@@ -349,6 +349,8 @@ function productInput(body, { partial = false, categoryIds = [] } = {}) {
   };
   strList('highlights', 12, 120);
   strList('images', 8, 500);
+  // Phone / device models the product fits ("Shop by Model" on the website).
+  strList('models', 80, 60);
   if (has('channels')) {
     if (!Array.isArray(b.channels) || b.channels.some((c) => !CHANNELS.includes(c))) throw httpError(400, 'channels must be a list of app / web');
     out.channels = CHANNELS.filter((c) => b.channels.includes(c));

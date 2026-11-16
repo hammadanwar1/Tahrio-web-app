@@ -3,12 +3,12 @@ import Link from 'next/link';
 
 import { ApiError, PageHeader } from '@/components/admin/page-header';
 import { ProductForm } from '@/components/admin/product-form';
-import { loadAdmin, type AdminCategory } from '@/lib/admin/api';
+import { loadAdmin, type AdminBrand, type AdminCategory } from '@/lib/admin/api';
 
 export const metadata: Metadata = { title: 'Add product' };
 
 export default async function NewProductPage() {
-  const { data, error } = await loadAdmin<AdminCategory[]>('/categories');
+  const [{ data, error }, brands] = await Promise.all([loadAdmin<AdminCategory[]>('/categories'), loadAdmin<AdminBrand[]>('/brands')]);
   if (!data) return <ApiError message={error} />;
   return (
     <>
@@ -16,7 +16,7 @@ export default async function NewProductPage() {
         ← Products
       </Link>
       <PageHeader title="Add product" />
-      <ProductForm categories={data} />
+      <ProductForm categories={data} brandNames={brands.data?.map((b) => b.name)} />
     </>
   );
 }

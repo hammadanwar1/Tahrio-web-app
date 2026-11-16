@@ -1,11 +1,13 @@
 // Pure catalog logic (no I/O). Mirrors backend/src/logic.js queryProducts so web search,
 // collection filters and the mobile app all return the same results.
 import { discountPercent, slugify } from './format';
-import type { Category, Product, ProductFilter } from './types';
+import { site } from './site';
+import type { Brand, Category, Product, ProductFilter } from './types';
 
 export interface Catalog {
   categories: Category[];
   products: Product[];
+  brands?: Brand[];
 }
 
 /** SEO slug for a product: from its name, e.g. /products/tahrio-pods-pro-anc */
@@ -25,7 +27,13 @@ export function productImage(p: Pick<Product, 'id' | 'imageUrl'>): string | null
   return file ? `/products/${file}` : null;
 }
 
-export const withDiscount = (p: Product): Product => ({ ...p, discount: discountPercent(p.price, p.oldPrice) });
+/** All photos of a product (main photo first), as public paths. */
+export function galleryImages(p: Pick<Product, 'id' | 'imageUrl' | 'images'>): string[] {
+  const all = [p.imageUrl, ...(p.images ?? [])].map((imageUrl) => productImage({ id: p.id, imageUrl: imageUrl ?? null }));
+  return [...new Set(all.filter((src): src is string => Boolean(src)))];
+}
+
+export const withDiscount =(p: Product): Product => ({ ...p, discount: discountPercent(p.price, p.oldPrice) });
 
 const norm = (s: unknown) => String(s ?? '').toLowerCase().trim();
 
@@ -73,6 +81,42 @@ export const findProductBySlug = (catalog: Catalog, slug: string) =>
 
 export const findCategoryBySlug = (catalog: Catalog, slug: string) =>
   catalog.categories.find((c) => categorySlug(c) === slug);
+
+// ---------- brands & device models ----------
+
+export const brandOf = (p: Pick<Product, 'brand'>) => p.brand?.trim() || site.name;
+export const brandPath = (name: string) => `/brands/${slugify(name)}`;
+
+/**
+ * "Shop by Brand": the brands managed in the admin panel (in their order), then any other brand
+ * typed on a product. Matched by slug, so "anker" and "Anker" are the same brand.
+ */
+export function listBrands(catalog: Catalog) {
+  const list = new Map(
+    (catalog.brands ?? []).map((b) => [
+      slugify(b.name),
+      { name: b.name, slug: slugify(b.name), color: b.color || '#0f1433', logoUrl: b.logoUrl ?? null, count: 0 },
+    ]),
+  );
+  for (const p of catalog.products) {
+    const slug = slugify(brandOf(p));
+    const entry = list.get(slug) ?? { name: brandOf(p), slug, color: '#0f1433', logoUrl: null, count: 0 };
+    entry.count++;
+    list.set(slug, entry);
+  }
+  return [...list.values()];
+}
+
+export const productsForBrand = (catalog: Catalog, slug: string) =>
+  catalog.products.filter((p) => slugify(brandOf(p)) === slug).map(withDiscount);
+
+// "+" matters in model names: Galaxy S26 and Galaxy S26+ need different URLs.
+export const modelSlug = (model: string) => slugify(model.replace(/\+/g, ' plus'));
+export const modelPath = (model: string) => `/models/${modelSlug(model)}`;
+
+/** Products listing any of these models as compatible. */
+export const productsForModels = (catalog: Catalog, models: string[]) =>
+  catalog.products.filter((p) => p.models?.some((m) => models.includes(m))).map(withDiscount);
 
 /** Same-category products first, then same tags; excludes the product itself. */
 export function relatedProducts(catalog: Catalog, product: Product, limit = 4): Product[] {

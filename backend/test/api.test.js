@@ -100,6 +100,25 @@ test('guest + register', async () => {
   const r = await call('POST', '/auth/register', { name: 'Ali', phone: '0321-7654321', password: 'secret1' });
   assert.equal(r.status, 201);
   assert.equal(r.body.user.phone, '03217654321');
+  assert.ok(r.body.user.device, 'device falls back to the request headers');
+});
+
+test('website signup: email + device, then email or phone login', async () => {
+  token = null;
+  const body = { name: 'Sana', phone: '0333-1112223', email: 'Sana@Example.com', password: 'secret1', device: 'Windows PC · Chrome' };
+  assert.equal((await call('POST', '/auth/register', { ...body, email: 'not-an-email' })).status, 400);
+  const r = await call('POST', '/auth/register', body);
+  assert.equal(r.status, 201);
+  assert.equal(r.body.user.email, 'sana@example.com');
+  assert.equal(r.body.user.device, 'Windows PC · Chrome');
+  assert.equal((await call('POST', '/auth/register', { ...body, phone: '0333-9998887' })).status, 409);
+
+  assert.equal((await call('POST', '/auth/login', { email: 'sana@example.com', password: 'secret1' })).status, 200);
+  assert.equal((await call('POST', '/auth/login', { phone: '03331112223', password: 'secret1' })).status, 200);
+  assert.equal((await call('POST', '/auth/login', { email: 'sana@example.com', password: 'wrong' })).status, 401);
+
+  const users = await call('GET', '/admin/users', null, { 'x-admin-key': 'tahrio-admin' });
+  assert.equal(users.body.users.find((u) => u.email === 'sana@example.com').device, 'Windows PC · Chrome');
 });
 
 test('admin products: create, edit, upload, delete', async () => {
@@ -335,4 +354,30 @@ test('admin users, login activity, blocking, dashboard', async () => {
   assert.ok(dash.body.topCategories.length > 0);
   assert.equal((await call('GET', '/admin/dashboard?range=12m', null, admin)).body.sales.series.length, 12);
   assert.equal((await call('GET', '/admin/dashboard?range=30d', null, admin)).body.sales.series.length, 30);
+});
+
+test('admin brands: list, add, logo, rename moves products, reorder, delete', async () => {
+  token = null;
+  const admin = { 'x-admin-key': 'tahrio-admin' };
+  const pub = await call('GET', '/brands');
+  assert.ok(pub.body.length >= 40);
+  assert.equal(pub.body[0].name, 'Tahrio');
+  assert.equal((await call('GET', '/admin/brands')).status, 403);
+  const rows = await call('GET', '/admin/brands', null, admin);
+  assert.ok(rows.body.find((b) => b.name === 'Tahrio').productCount > 0);
+
+  assert.equal((await call('POST', '/admin/brands', { name: 'anker' }, admin)).status, 409);
+  const created = await call('POST', '/admin/brands', { name: 'Joyroom', color: '#FF0000' }, admin);
+  assert.equal(created.status, 201);
+  const logo = await call('PATCH', `/admin/brands/${created.body.id}`, { logoUrl: 'https://cdn.example.com/joyroom.png' }, admin);
+  assert.equal(logo.body.logoUrl, 'https://cdn.example.com/joyroom.png');
+
+  const product = (await call('GET', '/admin/products', null, admin)).body[0];
+  await call('PATCH', `/admin/products/${product.id}`, { brand: 'joyroom' }, admin);
+  await call('PATCH', `/admin/brands/${created.body.id}`, { name: 'Joyroom Pro' }, admin);
+  assert.equal((await call('GET', `/admin/products/${product.id}`, null, admin)).body.brand, 'Joyroom Pro');
+
+  const moved = await call('POST', `/admin/brands/${created.body.id}/move`, { direction: 'up' }, admin);
+  assert.equal(moved.body.at(-2).id, created.body.id);
+  assert.equal((await call('DELETE', `/admin/brands/${created.body.id}`, null, admin)).status, 204);
 });

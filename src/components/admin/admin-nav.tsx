@@ -1,6 +1,6 @@
 'use client';
 
-import { FolderTree, LayoutDashboard, Package, ShoppingBag, Users } from 'lucide-react';
+import { Award, FolderTree, LayoutDashboard, Package, ShoppingBag, Users } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -9,6 +9,7 @@ const links = [
   { href: '/admin/orders', label: 'Orders', icon: ShoppingBag },
   { href: '/admin/products', label: 'Products', icon: Package },
   { href: '/admin/categories', label: 'Categories', icon: FolderTree },
+  { href: '/admin/brands', label: 'Brands', icon: Award },
   { href: '/admin/customers', label: 'Customers', icon: Users },
 ] as const;
 

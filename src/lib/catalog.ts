@@ -4,13 +4,14 @@ import 'server-only';
 import { cacheLife, cacheTag } from 'next/cache';
 
 import seed from '@/data/seed.json';
-import type { Banner, Category, Product, Review } from './types';
+import type { Banner, Brand, Category, Product, Review } from './types';
 import { categoriesWithCounts, type Catalog } from './catalog-core';
 
 /** Tahrio API base, e.g. https://api.tahrio.pk/api. Empty → use the bundled seed snapshot. */
 const API = (process.env.TAHRIO_API_URL ?? '').replace(/\/$/, '');
 
 export interface CatalogSnapshot extends Catalog {
+  brands: Brand[];
   banners: Banner[];
   reviews: Review[];
   trending: string[];
@@ -28,27 +29,30 @@ async function fetchJson<T>(path: string): Promise<T> {
 }
 
 async function fromApi() {
-  const [categories, page, banners, trending] = await Promise.all([
+  const [categories, page, banners, trending, brands] = await Promise.all([
     fetchJson<Category[]>('/categories'),
     fetchJson<{ items: Product[] }>('/products'),
     Promise.all([fetchJson<Banner[]>('/banners?placement=home'), fetchJson<Banner[]>('/banners?placement=categories')]),
     fetchJson<string[]>('/search/trending'),
+    // Older API deploys have no /brands yet: fall back to the bundled list.
+    fetchJson<Brand[]>('/brands').catch(() => fromSeed().brands),
   ]);
   const reviews = (
     await Promise.all(page.items.map((p) => fetchJson<Review[]>(`/products/${p.id}/reviews`).catch(() => [] as Review[])))
   ).flat();
-  return { categories, products: page.items, banners: banners.flat(), trending, reviews, source: 'api' as const };
+  return { categories, products: page.items, brands, banners: banners.flat(), trending, reviews, source: 'api' as const };
 }
 
 function fromSeed() {
   const s = seed as unknown as {
     categories: Category[];
     products: Product[];
+    brands?: Brand[];
     banners: Banner[];
     reviews?: Review[];
     trending: string[];
   };
-  return { categories: s.categories, products: s.products, banners: s.banners, trending: s.trending, reviews: s.reviews ?? [], source: 'seed' as const };
+  return { categories: s.categories, products: s.products, brands: s.brands ?? [], banners: s.banners, trending: s.trending, reviews: s.reviews ?? [], source: 'seed' as const };
 }
 
 export async function getCatalog(): Promise<CatalogSnapshot> {

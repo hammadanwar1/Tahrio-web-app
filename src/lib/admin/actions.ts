@@ -63,6 +63,8 @@ export async function saveProductAction(productId: string | null, _prev: FormSta
       fullName: text(f, 'fullName') || text(f, 'name'),
       categoryId: text(f, 'categoryId'),
       label: text(f, 'label'),
+      brand: text(f, 'brand'),
+      models: [...new Set(text(f, 'models').split(/[\n,]/).map((m) => m.trim()).filter(Boolean))],
       description: text(f, 'description'),
       price: text(f, 'price'),
       oldPrice: optionalNumber(f, 'oldPrice'),
@@ -128,6 +130,61 @@ export async function updateCategoryAction(categoryId: string, _prev: FormState,
 export async function deleteCategoryAction(categoryId: string): Promise<FormState> {
   try {
     await adminFetch(`/categories/${encodeURIComponent(categoryId)}`, { method: 'DELETE' });
+  } catch (err) {
+    return fail(err);
+  }
+  updateTag('catalog');
+  refresh();
+}
+
+// ---------- brands ----------
+
+/** Name, colour and (optionally) a newly uploaded logo from a brand form. */
+async function brandBody(f: FormData) {
+  const logo = f.get('logo');
+  return {
+    name: text(f, 'name'),
+    color: text(f, 'color') || null,
+    ...(logo instanceof File && logo.size > 0 ? { logoUrl: await uploadImage(logo) } : {}),
+    ...(f.get('removeLogo') ? { logoUrl: null } : {}),
+  };
+}
+
+export async function createBrandAction(_prev: FormState, f: FormData): Promise<FormState> {
+  try {
+    await adminFetch('/brands', { method: 'POST', body: await brandBody(f) });
+  } catch (err) {
+    return fail(err);
+  }
+  updateTag('catalog');
+  refresh();
+  return { message: 'Brand added' };
+}
+
+export async function updateBrandAction(brandId: string, _prev: FormState, f: FormData): Promise<FormState> {
+  try {
+    await adminFetch(`/brands/${encodeURIComponent(brandId)}`, { method: 'PATCH', body: await brandBody(f) });
+  } catch (err) {
+    return fail(err);
+  }
+  updateTag('catalog');
+  refresh();
+  return { message: 'Saved' };
+}
+
+export async function moveBrandAction(brandId: string, direction: 'up' | 'down'): Promise<FormState> {
+  try {
+    await adminFetch(`/brands/${encodeURIComponent(brandId)}/move`, { method: 'POST', body: { direction } });
+  } catch (err) {
+    return fail(err);
+  }
+  updateTag('catalog');
+  refresh();
+}
+
+export async function deleteBrandAction(brandId: string): Promise<FormState> {
+  try {
+    await adminFetch(`/brands/${encodeURIComponent(brandId)}`, { method: 'DELETE' });
   } catch (err) {
     return fail(err);
   }
